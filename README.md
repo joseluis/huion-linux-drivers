@@ -1,12 +1,10 @@
 # Quick and Dirty Linux support for Huion Kamvas GT-191
 
-![Huion Kamvas GT-191](https://www.huiontablet.com/media/catalog/product/cache/1/image/9df78eab33525d08d6e5fb8d27136e95/g/t/gt-191.jpg)
-
 ## Backstory
 
 In the summer of 2017, I bought a [Huion Kamvas GT-191](https://www.huiontablet.com/all-products/pen-tablet-monitor/kamvas-gt-191.html). It's a device that combines a stylus digitizer tablet with a full HD display. The idea is that you use the stylus to draw right on the screen.
 
-Huion has historically had [pretty decent Linux support](https://docs.krita.org/List_of_Tablets_Supported). It seemed likely that support for this latest manifestation would be added soon. Unfortunately however, the [DIGImend](http://digimend.github.io/) project that has been the primary force behind driver support for touch devices [is in trouble](http://spbnick.github.io/2016/07/31/Wrapping-up-DIGImend-work.html). [Nikolai](https://github.com/spbnick), the lead dev [writes](http://spbnick.github.io/2016/07/31/Wrapping-up-DIGImend-work.html):
+Huion has historically had [pretty decent Linux support](https://docs.krita.org/List_of_Tablets_Supported). It seemed likely that support for this latest manifestation would be added soon. Unfortunately however, the [DIGImend](http://digimend.github.io/) project that has been the primary force behind driver support for tablet devices [is in trouble](http://spbnick.github.io/2016/07/31/Wrapping-up-DIGImend-work.html). [Nikolai](https://github.com/spbnick), the lead dev [writes](http://spbnick.github.io/2016/07/31/Wrapping-up-DIGImend-work.html):
 
 > Starting today, I’m stopping all research on specific tablet interfaces and protocols required for implementing drivers. I.e. I’m not going to respond to any diagnostics, or requests to make new tablets work. I’m not going to support users, or investigate their problems either. However, I will still be reviewing and accepting patches, including ones already submitted.
 
@@ -20,6 +18,9 @@ This is a working user space evdev driver for Linux
 It is very quick and dirty but it is also *tiny*. Literally just **64 lines of Python**. So you could actually read the entire thing and be sure it does nothing nasty with your machine before executing it with super user privileges.
 
 Cobbled together in an afternoon as a workaround while waiting for activity in [digimend-kernel-drivers#78](https://github.com/DIGImend/digimend-kernel-drivers/issues/78). More than half of the code is borrowed from [dannytaylor's driver](https://github.com/dannytaylor/pinspiroy) for the (much more complicated) [Huion Inspiroy G10T](https://www.huiontablet.com/all-products/graphic-tablets/g10t.html). This code also inherits the former's (MIT) License. 
+
+
+Feel free to open an issue or write me a message if you ran into trouble or found this useful. 
 
 ## Status
 
@@ -59,6 +60,8 @@ If the cursor doesn't move, check out the "Known Bugs & Troubleshooting" section
 Note that it is not necessary to install this driver, just execute with superuser privileges (i.e., as root)
 
 ## Known Bugs & Troubleshooting
+
+This program requires the uinput module to be loaded. Load it either manually (`sudo modprobe uinput`) or automatically on boot (see the [Arch wiki](https://wiki.archlinux.org/index.php/Kernel_modules)).
 
 ### Unresponsive cursor
 
