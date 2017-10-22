@@ -18,12 +18,14 @@ Cobbled together in Python as a workaround while waiting for [digimend-kernel-dr
 
 You will likely also need to add the following to your `/etc/X11/xorg.conf`
 
-> Section "InputClass"
+```
+Section "InputClass"
 	Identifier "evdev tablet catchall"
 	MatchIsTablet "on"
 	MatchDevicePath "/dev/input/event*"
 	Driver "evdev"
 EndSection
+```
 
 ## Usage
 
