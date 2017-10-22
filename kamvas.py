@@ -48,8 +48,7 @@ while True:
         TOUCH = data[1] == 129
         BTN1 = data[1] == 130
         BTN2 = data[1] == 132
-        #print(data)
-        #print("X %6d Y%6d PRESS %4d (%s %s %s))" % (X, Y, PRESS, TOUCH, BTN1, BTN2))
+        print("X %6d Y%6d PRESS %4d (%s %s %s))" % (X, Y, PRESS, TOUCH, BTN1, BTN2))
         vpen.write(ecodes.EV_ABS, ecodes.ABS_X, X)
         vpen.write(ecodes.EV_ABS, ecodes.ABS_Y, Y)
         vpen.write(ecodes.EV_ABS, ecodes.ABS_PRESSURE, PRESS)
