@@ -1,5 +1,8 @@
 # Quick and Dirty Linux support for Huion Kamvas GT-191
 
+## NOTE: CURRENTLY REQUIRES WORKAROUND TO PROPERLY FUNCTION!
+**See [Issue #1](https://github.com/benthor/HuionKamvasGT191LinuxDriver/issues/1#issuecomment-351207116) for a description of the problem and [this post](https://github.com/benthor/HuionKamvasGT191LinuxDriver/issues/1#issuecomment-351207116) for a (temporary) workaround.**
+
 ## Backstory
 
 In the summer of 2017, I bought a [Huion Kamvas GT-191](https://www.huiontablet.com/all-products/pen-tablet-monitor/kamvas-gt-191.html). It's a device that combines a stylus digitizer tablet with a full HD display. The idea is that you use the stylus to draw right on the screen.
