@@ -1,7 +1,7 @@
 # Quick and Dirty Linux support for Huion Kamvas GT-191
 
 ## NOTE: CURRENTLY REQUIRES WORKAROUND TO PROPERLY FUNCTION!
-**See [Issue #1](https://github.com/benthor/HuionKamvasGT191LinuxDriver/issues/1#issuecomment-351207116) for a description of the problem and [this post](https://github.com/benthor/HuionKamvasGT191LinuxDriver/issues/1#issuecomment-351207116) for a (temporary) workaround.**
+**See [Issue #1](https://github.com/benthor/HuionKamvasGT191LinuxDriver/issues/1) for a description of the problem and [this post](https://github.com/benthor/HuionKamvasGT191LinuxDriver/issues/1#issuecomment-351207116) for a (temporary) workaround.**
 
 ## Backstory
 
@@ -27,6 +27,7 @@ Feel free to open an issue or write me a message if you ran into trouble or foun
 
 ## Status
 
+ * Device needs to be initialized once per boot using `uclogic-probe`, see [here](https://github.com/benthor/HuionKamvasGT191LinuxDriver/issues/1#issuecomment-351207116)
  * Cursor positioning works
  * Pressure sensitivity works (over all 8191 steps)
  * Stylus buttons work
@@ -34,6 +35,7 @@ Feel free to open an issue or write me a message if you ran into trouble or foun
 
 ## Requirements
 
+ * [uclogic-tools](https://github.com/DIGImend/uclogic-tools) while [Issue #1](https://github.com/benthor/HuionKamvasGT191LinuxDriver/issues/1) is still unresolved
  * [pyusb](https://walac.github.io/pyusb/) (`pip install pyusb` or ArchLinux package `python-pyusb`)
  * [python-evdev](https://github.com/gvalkov/python-evdev) (`pip install evdev` or Archlinux package `python-evdev`)
  * xf86-input-evdev (Archlinux package `xf86-input-evdev`)
@@ -67,8 +69,9 @@ Note that it is not necessary to install this driver, just execute with superuse
 This program requires the uinput module to be loaded. Load it either manually (`sudo modprobe uinput`) or automatically on boot (see the [Arch wiki](https://wiki.archlinux.org/index.php/Kernel_modules)).
 
 ### Unresponsive cursor
-
 In case of unresponsive cursor, look for error messages begining with `kamvas-pen` in /var/log/Xorg.0.log. Errors may indicate that you need to create and populate your `/etc/X11/xorg.conf` (see above)
+
+See if you may be having the same issue described as in [Issue #1](https://github.com/benthor/HuionKamvasGT191LinuxDriver/issues/1) and if the workaround described there fixes things for you.
 
 You should still see driver messages for each cursor event. If the touch of the stylus against the screen surface does not produce an event, you have a bigger problem. In this case, go [here](http://digimend.github.io/support/howto/trbl/diagnostics/) and follow the steps.
 
