@@ -71,9 +71,9 @@ This program requires the uinput module to be loaded. Load it either manually (`
 ### Unresponsive cursor
 In case of unresponsive cursor, look for error messages begining with `kamvas-pen` in /var/log/Xorg.0.log. Errors may indicate that you need to create and populate your `/etc/X11/xorg.conf` (see above)
 
-See if you may be having the same issue described as in [Issue #1](https://github.com/benthor/HuionKamvasGT191LinuxDriver/issues/1) and if the workaround described there fixes things for you.
+If you don't see driver debug messages for each cursor event either, see if you may be having the same issue described as in [Issue #1](https://github.com/benthor/HuionKamvasGT191LinuxDriver/issues/1) and if the workaround described there fixes things for you.
 
-You should still see driver messages for each cursor event. If the touch of the stylus against the screen surface does not produce an event, you have a bigger problem. In this case, go [here](http://digimend.github.io/support/howto/trbl/diagnostics/) and follow the steps.
+If this still doesn't help, go [here](http://digimend.github.io/support/howto/trbl/diagnostics/) and follow the steps. Then open a new issue.
 
 ### Other problems
 
