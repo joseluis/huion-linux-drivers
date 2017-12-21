@@ -3,8 +3,8 @@ import usb.util
 import sys
 from evdev import UInput, ecodes, AbsInfo
 
-PEN_MAX_X = 86970
-PEN_MAX_Y = 47752
+PEN_MAX_X = 95352
+PEN_MAX_Y = 53645
 PEN_MAX_Z = 8191
 RESOLUTION = 5080
 
@@ -38,7 +38,7 @@ for cfg in dev:
 
 endpoint = dev[0][(0,0)][0]
 vpen = UInput(events=cap_pen, name="kamvas-pen", version=0x3)
-print('huion kamvas GT191 driver should now be running')
+print('Huion Kamvas GT220 driver should now be running')
 while True:
     try:
         data = dev.read(endpoint.bEndpointAddress,endpoint.wMaxPacketSize)
@@ -48,7 +48,7 @@ while True:
         TOUCH = data[1] == 129
         BTN1 = data[1] == 130
         BTN2 = data[1] == 132
-        print("X %6d Y%6d PRESS %4d (%s %s %s))" % (X, Y, PRESS, TOUCH, BTN1, BTN2))
+        #print("X %6d Y%6d PRESS %4d (%s %s %s))" % (X, Y, PRESS, TOUCH, BTN1, BTN2))
         vpen.write(ecodes.EV_ABS, ecodes.ABS_X, X)
         vpen.write(ecodes.EV_ABS, ecodes.ABS_Y, Y)
         vpen.write(ecodes.EV_ABS, ecodes.ABS_PRESSURE, PRESS)
