@@ -7,6 +7,7 @@ This is a modified version of [kyledayton's GT-220 v2 Driver](https://github.com
  * Cursor positioning works
  * Pressure sensitivity works (over all 8191 steps)
  * Stylus buttons work
+ * Tablet Buttons and scroll bar works
  * Multi-monitor works
  * Device needs to be initialized once per boot using `uclogic-probe`, see [here](https://github.com/benthor/HuionKamvasGT191LinuxDriver/issues/1#issuecomment-351207116)
 
@@ -42,8 +43,10 @@ _**Note** that it is not necessary to install this driver, just execute with sup
 
  * [xinput](https://wiki.archlinux.org/index.php/Xinput) (Archlinux package `xorg-xinput`) (Ubuntu package `xinput`)
  * [evdev](https://wiki.gentoo.org/wiki/Evdev) (Archlinux package `xf86-input-evdev`) (Ubuntu package `xserver-xorg-input-evdev`)
+ * [python](https://www.python.org/) version 3.5 or greater
  * [python-evdev](https://github.com/gvalkov/python-evdev) (`pip3 install evdev` or Archlinux package `python-evdev` or Ubuntu package `python3-evdev`)
  * [pyusb](https://walac.github.io/pyusb/) (`pip3 install pyusb` or ArchLinux package `python-pyusb` or Ubuntu package `python3-usb`)
+ * [xdotool](http://www.semicomplete.com/projects/xdotool/) (Archlinux & Ubuntu package `xdotool`)
 
 
 ### Xorg Configuration
@@ -105,3 +108,30 @@ For example, after booting the system you should run the scripts in the followin
 2. Run `start-driver.sh`
 3. Run `map-monitor.sh`
 
+
+## Buttons Shortcuts
+
+You can customize the shortcuts associated with the 10 tablet buttons by editing the file `kamvas.py`, using xdotool syntax.
+
+It is configured by default with some very common shortcuts for [Krita](https://krita.org):
+
+```
+# SHORTCUTS
+#
+# Use xdotool syntax. E.g.: "key ctrl+shift+f1"
+
+# Krita keybindings:
+BUTTON = {
+  0: "key Tab", # hide toolbars
+  1: "key b",   # brush tool
+  2: "key r",   # pick layer
+  3: "key w",   # wrap around mode
+  4: "key e",   # erase mode
+
+  5: "key control+z",    # Undo
+  6: "key ctrl+shift+z", # Redo
+  7: "key 4",  # rotate left
+  8: "key 5",  # reset rotate
+  9: 'key 6'   # rotate right
+}
+```
