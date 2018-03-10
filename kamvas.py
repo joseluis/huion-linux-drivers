@@ -3,12 +3,19 @@ import usb.util
 import sys
 from evdev import UInput, ecodes, AbsInfo
 
+# Make sure the device name for the pen is right for your system.
+# You can run this command to check it out:
+#
+#   xinput list
+#
+PEN_DEVICE_NAME="Tablet Monitor Pen"
+
 PEN_MAX_X = 95352
 PEN_MAX_Y = 53645
 PEN_MAX_Z = 8191
 RESOLUTION = 5080
 
-#pressure sensitive pen tablet area with 2 stylus buttons and no eraser
+# pressure sensitive pen tablet area with 2 stylus buttons and no eraser
 cap_pen = {
     ecodes.EV_KEY: [ecodes.BTN_TOUCH, ecodes.BTN_TOOL_PEN, ecodes.BTN_STYLUS, ecodes.BTN_STYLUS2],
     ecodes.EV_ABS: [
@@ -16,7 +23,7 @@ cap_pen = {
         (ecodes.ABS_Y, AbsInfo(0,0,PEN_MAX_Y,0,0,RESOLUTION)),
         (ecodes.ABS_PRESSURE, AbsInfo(0,0,PEN_MAX_Z,0,0,0)),
     ],
-    #ecodes.EV_MSC: [ecodes.MSC_SCAN], #not sure why, but it appears to be needed
+    # ecodes.EV_MSC: [ecodes.MSC_SCAN], #not sure why, but it appears to be needed
 }
 
 dev = usb.core.find(idVendor=0x256c, idProduct=0x006e)
@@ -28,7 +35,7 @@ endpoint = None
 for cfg in dev:
     for i in cfg:
         for e in i:
-            #print("endpoint", e)
+            # print("endpoint", e) # DEBUG
             if not endpoint:
                 endpoint = e
         if dev.is_kernel_driver_active(i.index):
@@ -37,8 +44,8 @@ for cfg in dev:
             print("grabbed interface %d", i.index)
 
 endpoint = dev[0][(0,0)][0]
-vpen = UInput(events=cap_pen, name="kamvas-pen", version=0x3)
-print('Huion Kamvas GT220 driver should now be running')
+vpen = UInput(events=cap_pen, name=PEN_DEVICE_NAME, version=0x3)
+print('Huion Kamvas GT-221 PRO driver should now be running')
 while True:
     try:
         data = dev.read(endpoint.bEndpointAddress,endpoint.wMaxPacketSize)
@@ -48,7 +55,7 @@ while True:
         TOUCH = data[1] == 129
         BTN1 = data[1] == 130
         BTN2 = data[1] == 132
-        #print("X %6d Y%6d PRESS %4d (%s %s %s))" % (X, Y, PRESS, TOUCH, BTN1, BTN2))
+        # print("X %6d Y%6d PRESS %4d (%s %s %s))" % (X, Y, PRESS, TOUCH, BTN1, BTN2)) # DEBUG
         vpen.write(ecodes.EV_ABS, ecodes.ABS_X, X)
         vpen.write(ecodes.EV_ABS, ecodes.ABS_Y, Y)
         vpen.write(ecodes.EV_ABS, ecodes.ABS_PRESSURE, PRESS)
