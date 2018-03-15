@@ -1,14 +1,15 @@
-# Hacky Linux support for Huion (Kamvas) Tablets
+# User Space Linux Drivers for Huion (Kamvas) Tablets
 
 ## Supported Features
 
- * Multiple models supported (like Kamvas GT-191, GT-220-v2, GT-221-PRO…)
- * Cursor positioning
- * Pressure sensitivity
- * Stylus buttons
+ * Multiple Models (Kamvas GT-191, GT-220-v2, GT-221-PRO…)
+ * Screen Monitor
+ * Cursor Positioning
+ * Pressure Sensitivity
+ * Stylus Buttons
  * Tablet Buttons 
  * Scroll bar
- * Multi-monitor
+ * Multi-Monitor Setup
 
 
 ## Usage
