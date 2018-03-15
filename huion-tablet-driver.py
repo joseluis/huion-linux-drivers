@@ -13,8 +13,7 @@ MENU = {}
 
 # -----------------------------------------------------------------------------
 class main():
-    settings = {'pen_device_name':'Tablet Monitor Pen'
-        + strftime(" %H%M%S", gmtime())}
+    settings = {}
     dev = None
     endpoint = None
     vpen = None
@@ -31,7 +30,7 @@ class main():
 
 # -----------------------------------------------------------------------------
 def find_usb_device():
-    sys.stdout.write("Finding USB device . . . ")
+    sys.stdout.write("Finding USB device. . . ")
 
     main.dev = usb.core.find(idVendor=0x256c, idProduct=0x006e)
 
@@ -61,7 +60,7 @@ def prepare_driver():
     See https://github.com/benthor/HuionKamvasGT191LinuxDriver/issues/1#issuecomment-351207116
     """
 
-    sys.stdout.write("Preparing driver . . . ")
+    sys.stdout.write("Preparing driver. . . ")
 
     module_old   = "hid_uclogic"
     module_new   = "uinput"
@@ -81,7 +80,7 @@ def prepare_driver():
         main.settings['uclogic_bins']), shell=True,
         stdout=PIPE)
 
-    #print('-' * 80 + '\n' + uclogic_str.stdout.decode("utf-8") + '-' * 80) # DEBUG
+    # print('-' * 80 + '\n' + uclogic_str.stdout.decode("utf-8") + '-' * 80) # DEBUG
 
     if uclogic_str.returncode:
         print("ERROR")
@@ -93,7 +92,7 @@ def prepare_driver():
 # -----------------------------------------------------------------------------
 def setup_driver():
 
-    sys.stdout.write("Setting up driver . . . ")
+    sys.stdout.write("Setting up driver. . . ")
 
     # pressure sensitive pen tablet area with 2 stylus buttons and no eraser
     cap_pen = {
@@ -111,51 +110,66 @@ def setup_driver():
 
     # INFO ---------------------
 
+    print("\tTablet model name     {}".format(main.settings['model_name']))
+
     if main.settings['enable_buttons'] and main.settings['buttons'] > 0 :
-        print("\tbuttons enabled ({})".format(main.settings['buttons']))
+        print("\tButtons               ENABLED ({})".format(main.settings['buttons']))
     else:
-        print("\tbuttons disabled ({})".format(main.settings['buttons']))
+        print("\tButtons               disabled ({})".format(main.settings['buttons']))
 
     if main.settings['enable_scrollbar'] and main.settings['scrollbar'] > 0 :
-        print("\tscrollbar enabled ({})".format(main.settings['scrollbar']))
+        print("\tScrollbar             ENABLED ({})".format(main.settings['scrollbar']))
     else:
-        print("\tscrollbar disabled ({})".format(main.settings['scrollbar']))
+        print("\tScrollbar             disabled ({})".format(main.settings['scrollbar']))
 
-    print('Huion Kamvas {} driver should now be running'.format(main.settings['tablet_name']))
+    if main.settings['enable_notifications']:
+        print("\tDesktop notifications ENABLED")
+    else:
+        print("\tDesktop notifications disabled")
+
+    if main.settings['enable_multi_monitor']:
+        print("\tMulti Monitor Setup   ENABLED")
+    else:
+        print("\tMulti Monitor Setup   disabled")
 
 
 # -----------------------------------------------------------------------------
 def multi_monitor():
-    sys.stdout.write("Setting up multiple monitors . . . ")
 
-    # try:
-    #     data = main.dev.read(main.endpoint.bEndpointAddress, main.endpoint.wMaxPacketSize)
-    # except usb.core.USBError as e:
-    #     data = None
-    #     if e.args == ('Operation timed out',):
-    #         print(e, file=sys.stderr)
-    #
+    if not main.settings['enable_multi_monitor']:
+        return
 
-    C0=(main.settings["tablet_width"] / main.settings["total_screen_width"])
+    sys.stdout.write("Setting up multiple monitors. . . ")
+
+    if not main.settings['screen']:
+        print("No tablet screen!")
+        return
+
+    C0=(main.settings["screen_width"] / main.settings["total_screen_width"])
     C1=(main.settings["tablet_offset_x"] / main.settings["total_screen_width"])
-    C2=(main.settings["tablet_height"] / main.settings["total_screen_height"])
+    C2=(main.settings["screen_height"] / main.settings["total_screen_height"])
     C3=(main.settings["tablet_offset_y"] / main.settings["total_screen_height"])
-
-    # print('xinput set-prop "{}" --type=float "Coordinate Transformation Matrix" {} 0 {} 0 {} {} 0 0 1'.format(
-    #     main.settings['pen_device_name'], C0, C1, C2, C3))
 
     run('xinput set-prop "{}" --type=float "Coordinate Transformation Matrix" {} 0 {} 0 {} {} 0 0 1'.format(
         main.settings['pen_device_name'], C0, C1, C2, C3),
         shell=True, check=True)
 
-    print('Mapped tablet area to "{}"x"{}"+"{}"+"{}"'.format(
-        main.settings["tablet_width"], main.settings["tablet_height"],
+    print('Done!')
+
+    print('\tMapped tablet area to "{}x{} + {}x{}"'.format(
+        main.settings["screen_width"], main.settings["screen_height"],
         main.settings["tablet_offset_x"], main.settings["tablet_offset_y"]))
 
 
 # -----------------------------------------------------------------------------
 def main_loop():
+
+    print('\nHuion Kamvas driver should now be running\n')
+
+    switch_menu(main.current_menu)
+
     SCROLL_VAL_PREV=0
+
     while True:
         try:
             data = main.dev.read(main.endpoint.bEndpointAddress, main.endpoint.wMaxPacketSize)
@@ -176,24 +190,21 @@ def main_loop():
                     # convert to the exponent (0, 1, 2, 3, 4...)
                     BUTTON_VAL = int(math.log(BUTTON_VAL, 2))
 
-                    # TODO: read from config
-                    BUTTON = {
-                        0: "key Tab", # hide toolbars
-                        1: "key b",   # brush tool
-                        2: "key r",   # pick layer
-                        3: "key w",   # wrap around mode
-                        4: "key e",   # erase mode
+                    print(BUTTON_VAL)
 
-                        5: "key control+z",    # Undo
-                        6: "key ctrl+shift+z", # Redo
-                        7: "key 4",  # rotate left
-                        9: 'key 5',   # rotate right
-                        8: "key 6",  # reset rotate
-                    }
+                    # empty shortuct
+                    if MENU[main.current_menu][BUTTON_VAL] == "":
+                        pass
 
-                    if BUTTON[BUTTON_VAL] != "":
-                        # print("keypress(%s) == %s" % (BUTTON_VAL, BUTTON[BUTTON_VAL])) # DEBUG
-                        keypress(BUTTON[BUTTON_VAL])
+                    # links to menu
+                    elif MENU[main.current_menu][BUTTON_VAL].startswith('[') \
+                        and MENU[main.current_menu][BUTTON_VAL].endswith(']'):
+                        switch_menu(MENU[main.current_menu][BUTTON_VAL].strip('[]'))
+
+                    # keyboard shortcut
+                    else:
+                        #print("keypress(%s) == %s" % (BUTTON_VAL, MENU[main.current_menu][BUTTON_VAL])) # DEBUG
+                        keypress(MENU[main.current_menu][BUTTON_VAL])
 
 
             elif is_scrollbar and main.settings['enable_scrollbar']:
@@ -243,38 +254,58 @@ def keypress(sequence):
 
 
 # -----------------------------------------------------------------------------
+def switch_menu(new_menu):
+
+    if not main.settings['enable_buttons'] or main.settings['buttons'] == 0:
+        return
+
+    main.current_menu = new_menu
+
+    # print the menu
+    print("\n" + MENU[new_menu]['title'])
+    for n in range(0, main.settings['buttons']):
+        print("button {} = {}".format(n, MENU[main.current_menu][n]))
+
+
+# -----------------------------------------------------------------------------
 def read_config():
 
-    sys.stdout.write("Reading config.ini . . . ")
+    sys.stdout.write("Reading configuration. . . ")
 
     config = ConfigParser(interpolation=ExtendedInterpolation())
 
-    # TODO manage errors
-    config.read('config.ini')
+    config.read('config.ini') # TODO manage errors
 
-    main.settings['uclogic_bins'] = config.get('config', 'uclogic_bins')
+    # tablet info
+    current_tablet = config.get('config', 'current_tablet').strip('[]')
+    main.settings['model_name'] = config.get(current_tablet, 'model_name')
+    main.settings['pen_max_x'] = ast.literal_eval(config.get(current_tablet, 'pen_max_x'))
+    main.settings['pen_max_y'] = ast.literal_eval(config.get(current_tablet, 'pen_max_y'))
+    main.settings['pen_max_z'] = ast.literal_eval(config.get(current_tablet, 'pen_max_z'))
+    main.settings['resolution'] = ast.literal_eval(config.get(current_tablet, 'resolution'))
+    main.settings['buttons'] = ast.literal_eval(config.get(current_tablet, 'buttons'))
+    main.settings['scrollbar'] = ast.literal_eval(config.get(current_tablet, 'scrollbar'))
+    main.settings['screen_width'] = ast.literal_eval(config.get(current_tablet, 'screen_width'))
+    main.settings['screen_height'] = ast.literal_eval(config.get(current_tablet, 'screen_height'))
+    main.settings['screen'] = config.getboolean(current_tablet, 'screen')
 
-    main.settings['tablet_name'] = config.get('config', 'tablet_name')
-    main.settings['pen_max_x'] = ast.literal_eval(config.get('config', 'pen_max_x'))
-    main.settings['pen_max_y'] = ast.literal_eval(config.get('config', 'pen_max_y'))
-    main.settings['pen_max_z'] = ast.literal_eval(config.get('config', 'pen_max_z'))
-    main.settings['resolution'] = ast.literal_eval(config.get('config', 'resolution'))
-    main.settings['buttons'] = ast.literal_eval(config.get('config', 'buttons'))
-    main.settings['scrollbar'] = ast.literal_eval(config.get('config', 'scrollbar'))
-    main.settings['tablet_width'] = ast.literal_eval(config.get('config', 'tablet_width'))
-    main.settings['tablet_height'] = ast.literal_eval(config.get('config', 'tablet_height'))
+    main.settings['pen_device_name'] = 'Tablet Kamvas ' + main.settings['model_name'] \
+        + strftime(" %H:%M:%S", gmtime()) # add time as nonce
 
+    main.settings['enable_buttons'] = config.getboolean('config', 'enable_buttons')
+    main.settings['enable_scrollbar'] = config.getboolean('config', 'enable_scrollbar')
+
+    # multi-monitor setup
+    main.settings['enable_multi_monitor'] = config.getboolean('config', 'enable_multi_monitor')
     main.settings['total_screen_width'] = ast.literal_eval(config.get('config', 'total_screen_width'))
     main.settings['total_screen_height'] = ast.literal_eval(config.get('config', 'total_screen_height'))
     main.settings['tablet_offset_x'] = ast.literal_eval(config.get('config', 'tablet_offset_x'))
     main.settings['tablet_offset_y'] = ast.literal_eval(config.get('config', 'tablet_offset_y'))
 
-    main.settings['enable_multi_monitor'] = config.getboolean('config', 'enable_multi_monitor') # TODO do something with this
+    # Miscellaneus
+    main.settings['uclogic_bins'] = config.get('config', 'uclogic_bins')
     main.settings['enable_notifications'] = config.getboolean('config', 'enable_notifications')
-    main.settings['enable_buttons'] = config.getboolean('config', 'enable_buttons')
-    main.settings['enable_scrollbar'] = config.getboolean('config', 'enable_scrollbar')
-
-    main.settings['start_menu'] = config.get('config', 'start_menu')
+    main.settings['start_menu'] = config.get('config', 'start_menu').strip('[]')
 
     for section in config.sections():
         if section.startswith('menu_'):
@@ -298,7 +329,6 @@ def read_config():
 
                 # print("button {} = {}".format(n, MENU[section][n])) # DEBUG
 
-
     main.current_menu = main.settings['start_menu']
 
     print("Done!")
@@ -306,4 +336,4 @@ def read_config():
 
 # -----------------------------------------------------------------------------
 if __name__ == '__main__':
-        main.run()
+    main.run()
