@@ -108,16 +108,17 @@ First, assign the menu you're going to use as the starting menu.
 start_menu = [menu_simple]
 
 [menu_simple]
-b0 =
-b1 =
-b2 =
-b3 =
-b4 =
-b5 =
-b6 =
-b7 =
-b8 =
-b9 =
+b0 = key Tab           # hide interface
+b1 = key r             # rect select (gimp) & pick layer (krita)
+b2 = key ctrl+x        # cut
+b3 = key ctrl+c        # copy
+b4 = key ctrl+v        # paste
+#
+b5 = key ctrl+z        # undo
+b6 = key ctrl+y        # redo (gimp)
+b7 = key ctrl+shift+z  # redo (krita)
+b8 = key 4             # turn left (krita)
+b9 = key 6             # turn right (krita)
 ```
 
 ### Example with Multiple Buttons Menus
@@ -129,43 +130,43 @@ start_menu = [menu_main]
 title = % Main Menu %
 b0 = [menu_krita]
 b1 = [menu_gimp]
-b2 =
-b3 =
-b4 =
+b2 = key ctrl+s        # save
+b3 = key ctrl+o        # open
+b4 = key ctrl+w        # close
 #
-b5 =
-b6 =
-b7 =
+b5 = ctrl+x            # cut
+b6 = ctrl+c            # copy
+b7 = ctrl+v            # paste
 b8 = key Return
 b9 = key Escape
 
 [menu_krita]
 title = % Krita %
-b0 = key Tab
-b1 = key b
-b2 = key r
-b3 = key w
-b4 = key e
+b0 = key Tab           # hide interface
+b1 = key b             # draw tool
+b2 = key r             # pick layer
+b3 = key w             # wrap mode
+b4 = key e             # erase mode
 #
-b5 = key ctrl+z
-b6 = key ctrk+shift+z
-b7 = key 5
-b8 = key 4
-i9 = key 6
+b5 = key ctrl+z        # redo
+b6 = key ctrl+shift+z  # undo
+b7 = key 4             # turn left
+b8 = key 6             # turn right
+i9 = [menu_main]
 
 
 [menu_gimp]
 title = % Gimp %
-b0 =
-b1 =
-b2 =
-b3 =
-b4 =
+b0 = key Tab           # hide interface
+b1 = key p             # paintbrush
+b2 = key r             # rect select
+b3 = key c             # clone
+b4 = key shift+e       # eraser
 #
-b5 =
-b6 =
-b7 =
-b8 = key Tab
+b5 = key ctrl+z        # undo
+b6 = key ctrl+y        # redo
+b7 = key x             # swap colors
+b8 = key shift+r       # rotate
 b9 = [menu_main]
 ```
 
