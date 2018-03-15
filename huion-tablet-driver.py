@@ -267,6 +267,10 @@ def switch_menu(new_menu):
         print("button {} = {}".format(n, MENU[main.current_menu][n]))
 
 
+    if main.settings['enable_notifications']:
+        run('notify-send "{}"'.format(MENU[new_menu]['title']), shell=True, check=True)
+
+
 # -----------------------------------------------------------------------------
 def read_config():
 
