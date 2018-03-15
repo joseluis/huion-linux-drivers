@@ -1,23 +1,22 @@
-# Hacky Linux support for Huion Kamvas Tablets
+# Hacky Linux support for Huion (Kamvas) Tablets
 
-## Status
+## Supported Features
 
- * Tested with Huion Kamvas GT-191, GT-220-v2 and GT-221-PRO
- * Cursor positioning works
- * Pressure sensitivity works
- * Stylus buttons work
- * Tablet Buttons and scroll bar works
- * Multi-monitor works
- * Depends on `uclogic-probe` for now, see [here](https://github.com/benthor/HuionKamvasGT191LinuxDriver/issues/1#issuecomment-351207116)
+ * Multiple models supported (like Kamvas GT-191, GT-220-v2, GT-221-PRO…)
+ * Cursor positioning
+ * Pressure sensitivity
+ * Stylus buttons
+ * Tablet Buttons 
+ * Scroll bar
+ * Multi-monitor
 
 
 ## Usage
 
- * Install dependencies
- * Clone this repository
- * Run `./kamvas-linux-driver.py`
-
-_**Note** that it is not necessary to install this driver, just execute with superuser privileges (i.e., as root)_
+ * Install the dependencies.
+ * Clone or download this repository (You only need `huion-tablet-driver.py` and `config.ini` files).
+ * Edit `config.ini` to match your tablet, multi-monitor setup and desired shortcuts.
+ * Run `./huion-tablet-driver.py` with **superuser** privileges (e.g. as root or with sudo).
 
 
 ## Requirements
@@ -25,7 +24,7 @@ _**Note** that it is not necessary to install this driver, just execute with sup
 ### Dependencies
 
  * [python](https://www.python.org/) version 3.5 or greater
- * [uclogic-tools](https://github.com/DIGImend/uclogic-tools)
+ * [uclogic-tools](https://github.com/DIGImend/uclogic-tools) ([read why](https://github.com/benthor/HuionKamvasGT191LinuxDriver/issues/1#issuecomment-351207116))
 
     ```
     # Installation Steps:
@@ -40,8 +39,8 @@ _**Note** that it is not necessary to install this driver, just execute with sup
  * [evdev](https://wiki.gentoo.org/wiki/Evdev)
  * [python-evdev](https://github.com/gvalkov/python-evdev)
  * [pyusb](https://walac.github.io/pyusb/)
- * [xdotool](http://www.semicomplete.com/projects/xdotool/) (optional for )
- * [notify-send](https://wiki.archlinux.org/index.php/Desktop_notifications) (optional for Desktop notifications)
+ * [xdotool](http://www.semicomplete.com/projects/xdotool/) (optional for button shorcuts)
+ * [notify-send](https://wiki.archlinux.org/index.php/Desktop_notifications) (optional for desktop notifications)
 
 
 Install packages in Archlinux:
@@ -102,7 +101,7 @@ To customize the shortcuts associated with the buttons, edit the file `config.in
 First, assign the menu you're going to use as the starting menu.
 
 
-### Example with Single Menu
+### Example with a Single Buttons Menu
 
 ```
 start_menu = [menu_simple]
@@ -120,7 +119,7 @@ b8 =
 b9 =
 ```
 
-### Example with Multiple Menus
+### Example with Multiple Buttons Menus
 
 ```
 start_menu = [menu_main]
@@ -141,23 +140,23 @@ b9 = key Escape
 
 [menu_krita]
 title = %% Krita %%
-b0 = [menu_krita_draw]
-b1 = [menu_krita_edit]
-b2 =
-b3 =
-b4 =
+b0 = key Tab
+b1 = key b
+b2 = key r
+b3 = key w
+b4 = key e
 #
-b5 =
-b6 =
-b7 =
-b8 = key Tab
-i9 = [menu_main]
+b5 = key ctrl+z
+b6 = key ctrk+shift+z
+b7 = key 5
+b8 = key 4
+i9 = key 6
 
 
 [menu_gimp]
 title = %% Gimp %%
-b0 = [menu_krita_draw]
-b1 = [menu_krita_edit]
+b0 =
+b1 =
 b2 =
 b3 =
 b4 =
