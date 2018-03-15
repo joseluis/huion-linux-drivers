@@ -1,26 +1,21 @@
-# Hacky Linux support for Huion Kamvas GT-221 PRO
-
-This is a modified version of [kyledayton's GT-220 v2 Driver](https://github.com/kyledayton/HuionKamvasGT220v2LinuxDriver) (which was a modified version of [benthor's GT-191 Driver](https://github.com/benthor/HuionKamvasGT191LinuxDriver)). It is updated to work correctly with the Huion Kamvas GT-221 PRO.
+# Hacky Linux support for Huion Kamvas Tablets
 
 ## Status
 
+ * Tested with Huion Kamvas GT-191, GT-220-v2 and GT-221-PRO
  * Cursor positioning works
- * Pressure sensitivity works (over all 8191 steps)
+ * Pressure sensitivity works
  * Stylus buttons work
  * Tablet Buttons and scroll bar works
  * Multi-monitor works
- * Device needs to be initialized once per boot using `uclogic-probe`, see [here](https://github.com/benthor/HuionKamvasGT191LinuxDriver/issues/1#issuecomment-351207116)
+ * Depends on `uclogic-probe` for now, see [here](https://github.com/benthor/HuionKamvasGT191LinuxDriver/issues/1#issuecomment-351207116)
 
 
 ## Usage
 
  * Install dependencies
-
  * Clone this repository
-
- * Run `./start-driver.sh`
-
- * *(Optionally)* Run `./map-monitor.sh`
+ * Run `./kamvas-linux-driver.py`
 
 _**Note** that it is not necessary to install this driver, just execute with superuser privileges (i.e., as root)_
 
@@ -29,8 +24,8 @@ _**Note** that it is not necessary to install this driver, just execute with sup
 
 ### Dependencies
 
- * [uclogic-tools](https://github.com/DIGImend/uclogic-tools) while [Issue #1](https://github.com/benthor/HuionKamvasGT191LinuxDriver/issues/1) is still unresolved
-
+ * [python](https://www.python.org/) version 3.5 or greater
+ * [uclogic-tools](https://github.com/DIGImend/uclogic-tools)
 
     ```
     # Installation Steps:
@@ -41,12 +36,24 @@ _**Note** that it is not necessary to install this driver, just execute with sup
     sudo make install
     ```
 
- * [xinput](https://wiki.archlinux.org/index.php/Xinput) (Archlinux package `xorg-xinput`) (Ubuntu package `xinput`)
- * [evdev](https://wiki.gentoo.org/wiki/Evdev) (Archlinux package `xf86-input-evdev`) (Ubuntu package `xserver-xorg-input-evdev`)
- * [python](https://www.python.org/) version 3.5 or greater
- * [python-evdev](https://github.com/gvalkov/python-evdev) (`pip3 install evdev` or Archlinux package `python-evdev` or Ubuntu package `python3-evdev`)
- * [pyusb](https://walac.github.io/pyusb/) (`pip3 install pyusb` or ArchLinux package `python-pyusb` or Ubuntu package `python3-usb`)
- * [xdotool](http://www.semicomplete.com/projects/xdotool/) (Archlinux & Ubuntu package `xdotool`)
+ * [xinput](https://wiki.archlinux.org/index.php/Xinput)
+ * [evdev](https://wiki.gentoo.org/wiki/Evdev)
+ * [python-evdev](https://github.com/gvalkov/python-evdev)
+ * [pyusb](https://walac.github.io/pyusb/)
+ * [xdotool](http://www.semicomplete.com/projects/xdotool/) (optional for )
+ * [notify-send](https://wiki.archlinux.org/index.php/Desktop_notifications) (optional for Desktop notifications)
+
+
+Install packages in Archlinux:
+
+```
+$  pacman -S xorg-xinput xf86-input-evdev python-evdev python-pyusb xdotool libnotify
+```
+
+Install packages in Ubuntu:
+```
+$ sudo apt install xinput xserver-xorg-input-evdev python3-evdev python3-usb xdotool libnotify-bin
+```
 
 
 ### Xorg Configuration
@@ -62,76 +69,104 @@ Section "InputClass"
 EndSection
 ```
 
-### Fix Tablet Pen Name
-
-It is assumed that the name that your system assigns to your tablet pen is `Tablet Monitor Pen`.
-In case your system assigns a different name the scripts will fail, so you'll have to fix like this:
-
-1. Firstly run the command `xinput list` with your tablet unplugged.
-2. Then plug your tablet's USB cable, and run again the command `xinput list`. Notice the device name of your pen that should have appeared now.
-3. Finally edit the `PEN_DEVICE_NAME` variable at the beginning of the scripts `kamvas.py` and `map-monitor.sh` with the correct name.
-
-
 ## Multi-Monitor
 
-If you have a multi-monitor setup, edit `map-monitor.sh` with the correct values for your setup, and execute this script **AFTER** starting the driver.
+If you have a multi-monitor setup, edit `config.ini` with the correct values for your setup.
 
+```
+# Multi Monitor Configuration
 
-### Pre-configured Example
+enable_multi_monitor = true
+total_screen_width  = 2560 + 1920 + ${tablet_width}
+total_screen_height = 1440
+tablet_offset_x     = 2560 + 1920
+tablet_offset_y     = 0
+```
 
-The default `map-monitor.sh` script is configured for a specific setup with 3 monitors, with the tablet being the rightmost, like this:
-
+The default example is configured for a specific setup with 3 monitors, with the tablet being the rightmost, like this:
 ```
    [Left:2560x1440] - [Middle:1920x1080] - [Right:1920x1080](TABLET)
 ```
 
-**You will have to edit the values at the beginning of the script to match your specific setup:**
-
-```
-TOTAL_SCREEN_WIDTH=$((2560 + 1920 + TABLET_WIDTH)) # 6400
-TOTAL_SCREEN_HEIGHT=1440
-
-TABLET_OFFSET_X=$((2560 + 1920)) # 4480
-TABLET_OFFSET_Y=0
-```
-
-This pre-configured setup matches the following [`xrandr`](https://wiki.archlinux.org/index.php/xrandr) script (automatically created with [`arandr`](https://christian.amsuess.com/tools/arandr/))
+Matching the following example [`xrandr`](https://wiki.archlinux.org/index.php/xrandr) script (automatically created with [`arandr`](https://christian.amsuess.com/tools/arandr/))
 
 ```
 #!/bin/sh
 xrandr --output VGA-0 --mode 1920x1080 --pos 4480x0 --rotate normal --output DVI-D-0 --mode 1920x1080 --pos 2560x0 --rotate normal --output HDMI-0 --mode 2560x1440 --pos 0x0 --rotate normal
 ```
 
-For example, after booting the system you should run the scripts in the following order:
-
-1. Run your xrandr script
-2. Run `start-driver.sh`
-3. Run `map-monitor.sh`
-
-
 ## Buttons Shortcuts
 
-You can customize the shortcuts associated with the 10 tablet buttons by editing the file `kamvas.py`, using xdotool syntax.
+To customize the shortcuts associated with the buttons, edit the file `config.ini`, and use the xdotool syntax for the buttons actions.
 
-It is configured by default with some very common shortcuts for [Krita](https://krita.org):
+First, assign the menu you're going to use as the starting menu.
+
+
+### Example with Single Menu
 
 ```
-# SHORTCUTS
+start_menu = [menu_simple]
+
+[menu_simple]
+b0 =
+b1 =
+b2 =
+b3 =
+b4 =
+b5 =
+b6 =
+b7 =
+b8 =
+b9 =
+```
+
+### Example with Multiple Menus
+
+```
+start_menu = [menu_main]
+
+[menu_main]
+title = %% Main Menu %%
+b0 = [menu_krita]
+b1 = [menu_gimp]
+b2 =
+b3 =
+b4 =
 #
-# Use xdotool syntax. E.g.: "key ctrl+shift+f1"
+b5 =
+b6 =
+b7 =
+b8 = key Return
+b9 = key Escape
 
-# Krita keybindings:
-BUTTON = {
-  0: "key Tab", # hide toolbars
-  1: "key b",   # brush tool
-  2: "key r",   # pick layer
-  3: "key w",   # wrap around mode
-  4: "key e",   # erase mode
+[menu_krita]
+title = %% Krita %%
+b0 = [menu_krita_draw]
+b1 = [menu_krita_edit]
+b2 =
+b3 =
+b4 =
+#
+b5 =
+b6 =
+b7 =
+b8 = key Tab
+i9 = [menu_main]
 
-  5: "key control+z",    # Undo
-  6: "key ctrl+shift+z", # Redo
-  7: "key 4",  # rotate left
-  8: "key 5",  # reset rotate
-  9: 'key 6'   # rotate right
-}
+
+[menu_gimp]
+title = %% Gimp %%
+b0 = [menu_krita_draw]
+b1 = [menu_krita_edit]
+b2 =
+b3 =
+b4 =
+#
+b5 =
+b6 =
+b7 =
+b8 = key Tab
+b9 = [menu_main]
 ```
+
+
