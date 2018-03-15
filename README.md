@@ -126,7 +126,7 @@ b9 =
 start_menu = [menu_main]
 
 [menu_main]
-title = %% Main Menu %%
+title = % Main Menu %
 b0 = [menu_krita]
 b1 = [menu_gimp]
 b2 =
@@ -140,7 +140,7 @@ b8 = key Return
 b9 = key Escape
 
 [menu_krita]
-title = %% Krita %%
+title = % Krita %
 b0 = key Tab
 b1 = key b
 b2 = key r
@@ -155,7 +155,7 @@ i9 = key 6
 
 
 [menu_gimp]
-title = %% Gimp %%
+title = % Gimp %
 b0 =
 b1 =
 b2 =
