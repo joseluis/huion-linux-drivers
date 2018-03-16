@@ -13,8 +13,8 @@ MENU = {}
 
 # -----------------------------------------------------------------------------
 class main():
-    settings = {'pen_device_name':'Tablet Monitor Pen'
-            + strftime(" %H%M%S", gmtime())}
+    settings = {'pen_device_name':'Tablet Monitor Pen' # must be defined here
+            + strftime(" %H%M%S", gmtime())}           # for pressure to work
     dev = None
     endpoint = None
     vpen = None
@@ -59,7 +59,7 @@ def find_usb_device():
 def prepare_driver():
     """
     This is necessary for now.
-    See https://github.com/benthor/HuionKamvasGT191LinuxDriver/issues/1#issuecomment-351207116
+    See https://github.com/benthor/HuionKamvasGT191LinuxDriver/issues/1
     """
 
     sys.stdout.write("Preparing driver. . . ")
@@ -77,19 +77,19 @@ def prepare_driver():
 
     run('modprobe "{}"'.format(module_new), shell=True)
 
-    uclogic_str = run('"{}/uclogic-probe" "{}" "{}" | "{}/uclogic-decode"'.format(
+    uc_str = run('"{}/uclogic-probe" "{}" "{}" | "{}/uclogic-decode"'.format(
         main.settings['uclogic_bins'], main.dev.bus, main.dev.address,
         main.settings['uclogic_bins']), shell=True,
         stdout=PIPE)
 
-    if uclogic_str.returncode:
+    if uc_str.returncode:
         print("ERROR running uclogic")
         sys.exit(1)
 
     print("Done!")
 
     if main.settings['show_uclogic_info']:
-        print('-' * 80 + '\n' + uclogic_str.stdout.decode("utf-8") + '-' * 80) # DEBUG
+        print('-'*80+'\n'+ uc_str.stdout.decode("utf-8") +'-'*80) # DEBUG
 
 
 # -----------------------------------------------------------------------------
@@ -99,15 +99,19 @@ def setup_driver():
 
     # pressure sensitive pen tablet area with 2 stylus buttons and no eraser
     cap_pen = {
-        ecodes.EV_KEY: [ecodes.BTN_TOUCH, ecodes.BTN_TOOL_PEN, ecodes.BTN_STYLUS, ecodes.BTN_STYLUS2],
+        ecodes.EV_KEY: [ecodes.BTN_TOUCH, ecodes.BTN_TOOL_PEN,
+            ecodes.BTN_STYLUS, ecodes.BTN_STYLUS2],
         ecodes.EV_ABS: [
-            (ecodes.ABS_X, AbsInfo(0,0,main.settings['pen_max_x'],0,0,main.settings['resolution'])), # value, min, max, fuzz, flat, resolution
-            (ecodes.ABS_Y, AbsInfo(0,0,main.settings['pen_max_y'],0,0,main.settings['resolution'])),
+            (ecodes.ABS_X, AbsInfo(0,0,main.settings['pen_max_x'],0,0,
+                main.settings['resolution'])), # value,min,max,fuzz,flat,resolu.
+            (ecodes.ABS_Y, AbsInfo(0,0,main.settings['pen_max_y'],0,0,
+                main.settings['resolution'])),
             (ecodes.ABS_PRESSURE, AbsInfo(0,0,main.settings['pen_max_z'],0,0,0)),
         ]
     }
 
-    main.vpen = UInput(events=cap_pen, name=main.settings['pen_device_name'], version=0x3)
+    main.vpen = UInput(events=cap_pen, name=main.settings['pen_device_name'],
+        version=0x3)
 
     print("Done!")
 
@@ -116,14 +120,18 @@ def setup_driver():
     print("\tTablet model name     {}".format(main.settings['model_name']))
 
     if main.settings['enable_buttons'] and main.settings['buttons'] > 0 :
-        print("\tButtons               ENABLED ({})".format(main.settings['buttons']))
+        print("\tButtons               ENABLED ({})".format(
+            main.settings['buttons']))
     else:
-        print("\tButtons               disabled ({})".format(main.settings['buttons']))
+        print("\tButtons               disabled ({})".format(
+            main.settings['buttons']))
 
     if main.settings['enable_scrollbar'] and main.settings['scrollbar'] > 0 :
-        print("\tScrollbar             ENABLED ({})".format(main.settings['scrollbar']))
+        print("\tScrollbar             ENABLED ({})".format(
+            main.settings['scrollbar']))
     else:
-        print("\tScrollbar             disabled ({})".format(main.settings['scrollbar']))
+        print("\tScrollbar             disabled ({})".format(
+            main.settings['scrollbar']))
 
     if main.settings['enable_notifications']:
         print("\tDesktop notifications ENABLED")
@@ -175,7 +183,8 @@ def main_loop():
 
     while True:
         try:
-            data = main.dev.read(main.endpoint.bEndpointAddress, main.endpoint.wMaxPacketSize)
+            data = main.dev.read(main.endpoint.bEndpointAddress,
+                main.endpoint.wMaxPacketSize)
 
             is_touch = data[1] == 129
             is_pen_btn1 = data[1] == 130
@@ -223,9 +232,12 @@ def main_loop():
                 main.vpen.write(ecodes.EV_ABS, ecodes.ABS_X, X)
                 main.vpen.write(ecodes.EV_ABS, ecodes.ABS_Y, Y)
                 main.vpen.write(ecodes.EV_ABS, ecodes.ABS_PRESSURE, PRESS)
-                main.vpen.write(ecodes.EV_KEY, ecodes.BTN_TOUCH, is_touch and 1 or 0)
-                main.vpen.write(ecodes.EV_KEY, ecodes.BTN_STYLUS, is_pen_btn1 and 1 or 0)
-                main.vpen.write(ecodes.EV_KEY, ecodes.BTN_STYLUS2, is_pen_btn2 and 1 or 0)
+                main.vpen.write(ecodes.EV_KEY, ecodes.BTN_TOUCH,
+                    is_touch and 1 or 0)
+                main.vpen.write(ecodes.EV_KEY, ecodes.BTN_STYLUS,
+                    is_pen_btn1 and 1 or 0)
+                main.vpen.write(ecodes.EV_KEY, ecodes.BTN_STYLUS2,
+                    is_pen_btn2 and 1 or 0)
                 main.vpen.syn()
 
         except usb.core.USBError as e:
@@ -277,7 +289,8 @@ def switch_menu(new_menu):
 
 
     if main.settings['enable_notifications']:
-        run('notify-send "{}"'.format(MENU[new_menu]['title']), shell=True, check=True)
+        run('notify-send "{}"'.format(MENU[new_menu]['title']), shell=True,
+            check=True)
 
 
 # -----------------------------------------------------------------------------
@@ -292,30 +305,47 @@ def read_config():
     # tablet info
     current_tablet = config.get('config', 'current_tablet').strip('[]')
     main.settings['model_name'] = config.get(current_tablet, 'model_name')
-    main.settings['pen_max_x'] = ast.literal_eval(config.get(current_tablet, 'pen_max_x'))
-    main.settings['pen_max_y'] = ast.literal_eval(config.get(current_tablet, 'pen_max_y'))
-    main.settings['pen_max_z'] = ast.literal_eval(config.get(current_tablet, 'pen_max_z'))
-    main.settings['resolution'] = ast.literal_eval(config.get(current_tablet, 'resolution'))
-    main.settings['buttons'] = ast.literal_eval(config.get(current_tablet, 'buttons'))
-    main.settings['scrollbar'] = ast.literal_eval(config.get(current_tablet, 'scrollbar'))
-    main.settings['screen_width'] = ast.literal_eval(config.get(current_tablet, 'screen_width'))
-    main.settings['screen_height'] = ast.literal_eval(config.get(current_tablet, 'screen_height'))
+    main.settings['pen_max_x'] = ast.literal_eval(config.get(current_tablet,
+        'pen_max_x'))
+    main.settings['pen_max_y'] = ast.literal_eval(config.get(current_tablet,
+        'pen_max_y'))
+    main.settings['pen_max_z'] = ast.literal_eval(config.get(current_tablet,
+        'pen_max_z'))
+    main.settings['resolution'] = ast.literal_eval(config.get(current_tablet,
+        'resolution'))
+    main.settings['buttons'] = ast.literal_eval(config.get(current_tablet,
+        'buttons'))
+    main.settings['scrollbar'] = ast.literal_eval(config.get(current_tablet,
+        'scrollbar'))
+    main.settings['screen_width'] = ast.literal_eval(config.get(current_tablet,
+        'screen_width'))
+    main.settings['screen_height'] = ast.literal_eval(config.get(current_tablet,
+        'screen_height'))
     main.settings['screen'] = config.getboolean(current_tablet, 'screen')
 
-    main.settings['enable_buttons'] = config.getboolean('config', 'enable_buttons')
-    main.settings['enable_scrollbar'] = config.getboolean('config', 'enable_scrollbar')
+    main.settings['enable_buttons'] = config.getboolean('config',
+        'enable_buttons')
+    main.settings['enable_scrollbar'] = config.getboolean('config',
+        'enable_scrollbar')
 
     # multi-monitor setup
-    main.settings['enable_multi_monitor'] = config.getboolean('config', 'enable_multi_monitor')
-    main.settings['total_screen_width'] = ast.literal_eval(config.get('config', 'total_screen_width'))
-    main.settings['total_screen_height'] = ast.literal_eval(config.get('config', 'total_screen_height'))
-    main.settings['tablet_offset_x'] = ast.literal_eval(config.get('config', 'tablet_offset_x'))
-    main.settings['tablet_offset_y'] = ast.literal_eval(config.get('config', 'tablet_offset_y'))
+    main.settings['enable_multi_monitor'] = config.getboolean('config',
+        'enable_multi_monitor')
+    main.settings['total_screen_width'] = ast.literal_eval(config.get('config',
+        'total_screen_width'))
+    main.settings['total_screen_height'] = ast.literal_eval(config.get('config',
+        'total_screen_height'))
+    main.settings['tablet_offset_x'] = ast.literal_eval(config.get('config',
+        'tablet_offset_x'))
+    main.settings['tablet_offset_y'] = ast.literal_eval(config.get('config',
+        'tablet_offset_y'))
 
     # Miscellaneus
     main.settings['uclogic_bins'] = config.get('config', 'uclogic_bins')
-    main.settings['show_uclogic_info'] = config.getboolean('config', 'show_uclogic_info')
-    main.settings['enable_notifications'] = config.getboolean('config', 'enable_notifications')
+    main.settings['show_uclogic_info'] = config.getboolean('config',
+        'show_uclogic_info')
+    main.settings['enable_notifications'] = config.getboolean('config',
+        'enable_notifications')
     main.settings['start_menu'] = config.get('config', 'start_menu').strip('[]')
 
     for section in config.sections():
@@ -334,15 +364,18 @@ def read_config():
             for n in range(0, main.settings['buttons']):
                 btn = 'b' + str(n)
                 if config.has_option(section, btn):
-                    MENU[section][n] = config.get(section, btn).split("#",1)[0].strip()
+                    MENU[section][n] = config.get(
+                        section, btn).split("#",1)[0].strip()
                 else:
                     MENU[section][n] = ""
                 # print("button {} = {}".format(n, MENU[section][n])) # DEBUG
 
             # scrollbar
             if main.settings['scrollbar']:
-                MENU[section]['scroll_up'] = config.get(section, 'su').split("#",1)[0].strip()
-                MENU[section]['scroll_down'] = config.get(section, 'sd').split("#",1)[0].strip()
+                MENU[section]['scroll_up'] = config.get(
+                    section, 'su').split("#",1)[0].strip()
+                MENU[section]['scroll_down'] = config.get(
+                    section, 'sd').split("#",1)[0].strip()
 
     main.current_menu = main.settings['start_menu']
 
