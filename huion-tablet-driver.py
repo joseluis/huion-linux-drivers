@@ -80,13 +80,14 @@ def prepare_driver():
         main.settings['uclogic_bins']), shell=True,
         stdout=PIPE)
 
-    # print('-' * 80 + '\n' + uclogic_str.stdout.decode("utf-8") + '-' * 80) # DEBUG
-
     if uclogic_str.returncode:
         print("ERROR")
         sys.exit(1)
 
     print("Done!")
+
+    if main.settings['show_uclogic_info']:
+        print('-' * 80 + '\n' + uclogic_str.stdout.decode("utf-8") + '-' * 80) # DEBUG
 
 
 # -----------------------------------------------------------------------------
@@ -312,6 +313,7 @@ def read_config():
 
     # Miscellaneus
     main.settings['uclogic_bins'] = config.get('config', 'uclogic_bins')
+    main.settings['show_uclogic_info'] = config.getboolean('config', 'show_uclogic_info')
     main.settings['enable_notifications'] = config.getboolean('config', 'enable_notifications')
     main.settings['start_menu'] = config.get('config', 'start_menu').strip('[]')
 

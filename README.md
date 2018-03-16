@@ -164,7 +164,7 @@ b5 = key ctrl+z        # redo
 b6 = key ctrl+shift+z  # undo
 b7 = key 4             # turn left
 b8 = key 6             # turn right
-i9 = [menu_main]
+b9 = [menu_main]
 
 
 [menu_gimp]
@@ -190,17 +190,15 @@ b9 = [menu_main]
 
 Current supported models are: `H950P`, `GT-191`, `GT-220 v2` and `GT-221 PRO`.
 
-If you have access to a different Huion model, please open a new issue, pasting the output of the following commands (with your tablet plugged in):
+If you have access to a different Huion model, please open a new issue, pasting the console output after executing the driver, like this:
+
 
 ```
-BUS=$(lsusb | grep 256c:006e | cut -d' ' -f2)
-ADDR=$(lsusb | grep 256c:006e | cut -d' ' -f4 | cut -c-3)
-sudo /usr/local/bin/uclogic-probe $BUS $ADDR | /usr/local/bin/uclogic-decode
-```
-
-It should give an output similar to the following:
-
-```
+$ sudo ./huion-tablet-driver.py 
+Finding USB device. . . Done!
+Reading configuration. . . Done!
+Preparing driver. . . Done!
+--------------------------------------------------------------------------------
     |                Product: Tablet Monitor
  64 |        Params block #1: ??????
     |                          Max X: 37540
@@ -208,7 +206,7 @@ It should give an output similar to the following:
     |                   Max pressure: 8191
     |                     Resolution: 2000
     |
- 79 |         Internal model:
+ 79 |         Internal model: 
  7b |         Buttons status: HK On
  c8 |        Params block #2: ????????
     |                          Max X: 95352
@@ -218,6 +216,8 @@ It should give an output similar to the following:
     |
  c9 |      Unknown string #1: HUION_M167_170623
  ca |  Internal manufacturer: HUION Animation Technology Co.,ltd
+--------------------------------------------------------------------------------
+Setting up driver. . . Done!
 ```
 
 With that information, it will become possible to add the tablet to the `config.ini` file.
