@@ -208,16 +208,14 @@ def main_loop():
 
                 if SCROLL_VAL > 0: # 0 means release
                     if SCROLL_VAL_PREV == 0:
-                        # print("Scrolling...")
+                        # print("Scrolling...") # DEBUG
                         SCROLL_VAL_PREV=SCROLL_VAL
 
                     if SCROLL_VAL > SCROLL_VAL_PREV:
-                        # keypress("click 4") # mouse wheel up
-                        keypress("key ctrl+minus") # zoom out
+                        keypress(MENU[main.current_menu]['scroll_up'])
 
                     elif SCROLL_VAL < SCROLL_VAL_PREV:
-                        # keypress("click 5") # mouse wheel down
-                        keypress("key ctrl+plus") # zoom in
+                        keypress(MENU[main.current_menu]['scroll_down'])
 
                 SCROLL_VAL_PREV = SCROLL_VAL
 
@@ -368,6 +366,7 @@ def read_config():
                         section, btn).split("#",1)[0].strip()
                 else:
                     MENU[section][n] = ""
+
                 # print("button {} = {}".format(n, MENU[section][n])) # DEBUG
 
             # scrollbar
