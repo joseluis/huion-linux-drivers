@@ -36,7 +36,8 @@ def find_usb_device():
     main.dev = usb.core.find(idVendor=0x256c, idProduct=0x006e)
 
     if not main.dev:
-        print("Could not find device, maybe already opened?", file=sys.stderr)
+        print("Error, Could not find device, maybe already opened?",
+            file=sys.stderr)
         sys.exit(1)
     else:
         print("Done!")
@@ -82,7 +83,7 @@ def prepare_driver():
         stdout=PIPE)
 
     if uclogic_str.returncode:
-        print("ERROR")
+        print("ERROR running uclogic")
         sys.exit(1)
 
     print("Done!")
@@ -189,10 +190,9 @@ def main_loop():
                 if BUTTON_VAL > 0: # 0 means release
                     # convert to the exponent (0, 1, 2, 3, 4...)
                     BUTTON_VAL = int(math.log(BUTTON_VAL, 2))
-                    print(BUTTON_VAL) # DEBUG
+                    # print(BUTTON_VAL) # DEBUG
 
                     do_shortcut(MENU[main.current_menu][BUTTON_VAL])
-
 
             elif is_scrollbar and main.settings['enable_scrollbar']:
                 SCROLL_VAL = data[5]
@@ -216,6 +216,9 @@ def main_loop():
                 X = (data[8] << 16) + (data[3] << 8) + data[2]
                 Y = (data[5] << 8) + data[4]
                 PRESS = (data[7] << 8) + data[6]
+
+                # if PRESS > 0:
+                    # print("{}  ".format(PRESS), end='\r') # DEBUG
 
                 main.vpen.write(ecodes.EV_ABS, ecodes.ABS_X, X)
                 main.vpen.write(ecodes.EV_ABS, ecodes.ABS_Y, Y)
@@ -247,7 +250,7 @@ def do_shortcut(sequence):
 
     # is a keyboard shortcut
     else:
-        #print("keypress == {}".format(sequence)) # DEBUG
+        # print("keypress == {}".format(sequence)) # DEBUG
         keypress(sequence)
 
 
