@@ -70,7 +70,8 @@ EndSection
 
 ## Multi-Monitor
 
-If you have a multi-monitor setup, edit `config.ini` with the correct values for your setup.
+If you have a multi-monitor setup, edit your copy of `config.ini`
+with the correct values for your particular setup. Like this:
 
 ```
 # Multi Monitor Configuration
@@ -81,6 +82,8 @@ total_screen_height = 1440
 tablet_offset_x     = 2560 + 1920
 tablet_offset_y     = 0
 ```
+
+[More information in the wiki](https://github.com/joseluis/huion-linux-drivers/wiki/Multi-Monitor)
 
 The default example is configured for a specific setup with 3 monitors, with the tablet being the rightmost, like this:
 ```
@@ -129,96 +132,13 @@ b9 = key 6             # turn right (krita)
 
 ### Example with Multiple Buttons Menus
 
-```
-start_menu = [menu_main]
-
-[menu_main]
-title = % Main Menu %
-b0 = [menu_krita]
-b1 = [menu_gimp]
-b2 = key ctrl+s        # save
-b3 = key ctrl+o        # open
-b4 = key ctrl+w        # close
-#
-su = click 4           # mouse wheel up
-sd = click 5           # mouse wheel down
-#
-b5 = ctrl+x            # cut
-b6 = ctrl+c            # copy
-b7 = ctrl+v            # paste
-b8 = key Return
-b9 = key Escape
-
-[menu_krita]
-title = % Krita %
-b0 = key Tab           # hide interface
-b1 = key b             # draw tool
-b2 = key r             # pick layer
-b3 = key w             # wrap mode
-b4 = key e             # erase mode
-#
-su = key ctrl+minus    # zoom out
-sd = key ctrl+plus     # zoom in
-#
-b5 = key ctrl+z        # redo
-b6 = key ctrl+shift+z  # undo
-b7 = key 4             # turn left
-b8 = key 6             # turn right
-b9 = [menu_main]
-
-
-[menu_gimp]
-title = % Gimp %
-b0 = key Tab           # hide interface
-b1 = key p             # paintbrush
-b2 = key r             # rect select
-b3 = key c             # clone
-b4 = key shift+e       # eraser
-#
-su = key minus         # zoom out
-sd = key plus          # zoom in
-#
-b5 = key ctrl+z        # undo
-b6 = key ctrl+y        # redo
-b7 = key x             # swap colors
-b8 = key shift+r       # rotate
-b9 = [menu_main]
-```
+[Complete example in the wiki](https://github.com/joseluis/huion-linux-drivers/wiki/Buttons-Shortcuts#12-example-with-multiple-menus)
 
 
 ## Supporting More Models
 
 Current supported models are: `H950P`, `GT-191`, `GT-220 v2` and `GT-221 PRO`.
 
-If you have access to a different Huion model, please open a new issue, pasting the console output after executing the driver, like this:
-
-
-```
-$ sudo ./huion-tablet-driver.py 
-Finding USB device. . . Done!
-Reading configuration. . . Done!
-Preparing driver. . . Done!
---------------------------------------------------------------------------------
-    |                Product: Tablet Monitor
- 64 |        Params block #1: ??????
-    |                          Max X: 37540
-    |                          Max Y: 21120
-    |                   Max pressure: 8191
-    |                     Resolution: 2000
-    |
- 79 |         Internal model: 
- 7b |         Buttons status: HK On
- c8 |        Params block #2: ????????
-    |                          Max X: 95352
-    |                          Max Y: 53645
-    |                   Max pressure: 8191
-    |                     Resolution: 5080
-    |
- c9 |      Unknown string #1: HUION_M167_170623
- ca |  Internal manufacturer: HUION Animation Technology Co.,ltd
---------------------------------------------------------------------------------
-Setting up driver. . . Done!
-```
-
-With that information, it will become possible to add the tablet to the `config.ini` file.
+If you have access to a different Huion model, please open a new issue,
+pasting the console output after executing the driver, so I can add it.
 
