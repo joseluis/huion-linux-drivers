@@ -85,17 +85,6 @@ tablet_offset_y     = 0
 
 [More information in the wiki](https://github.com/joseluis/huion-linux-drivers/wiki/Multi-Monitor)
 
-The default example is configured for a specific setup with 3 monitors, with the tablet being the rightmost, like this:
-```
-   [Left:2560x1440] - [Middle:1920x1080] - [Right:1920x1080](TABLET)
-```
-
-Matching the following example [`xrandr`](https://wiki.archlinux.org/index.php/xrandr) script (automatically created with [`arandr`](https://christian.amsuess.com/tools/arandr/))
-
-```
-#!/bin/sh
-xrandr --output VGA-0 --mode 1920x1080 --pos 4480x0 --rotate normal --output DVI-D-0 --mode 1920x1080 --pos 2560x0 --rotate normal --output HDMI-0 --mode 2560x1440 --pos 0x0 --rotate normal
-```
 
 ## Buttons Shortcuts
 
@@ -130,9 +119,7 @@ b8 = key 4             # turn left (krita)
 b9 = key 6             # turn right (krita)
 ```
 
-### Example with Multiple Buttons Menus
-
-[Complete example in the wiki](https://github.com/joseluis/huion-linux-drivers/wiki/Buttons-Shortcuts#12-example-with-multiple-menus)
+[See an example with multiple menus in the wiki](https://github.com/joseluis/huion-linux-drivers/wiki/Buttons-Shortcuts#12-example-with-multiple-menus)
 
 
 ## Supporting More Models
