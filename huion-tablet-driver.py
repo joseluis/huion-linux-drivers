@@ -13,7 +13,8 @@ MENU = {}
 
 # -----------------------------------------------------------------------------
 class main():
-    settings = {}
+    settings = {'pen_device_name':'Tablet Monitor Pen'
+            + strftime(" %H%M%S", gmtime())}
     dev = None
     endpoint = None
     vpen = None
@@ -297,9 +298,6 @@ def read_config():
     main.settings['screen_width'] = ast.literal_eval(config.get(current_tablet, 'screen_width'))
     main.settings['screen_height'] = ast.literal_eval(config.get(current_tablet, 'screen_height'))
     main.settings['screen'] = config.getboolean(current_tablet, 'screen')
-
-    main.settings['pen_device_name'] = 'Tablet Kamvas ' + main.settings['model_name'] \
-        + strftime(" %H:%M:%S", gmtime()) # add time as nonce
 
     main.settings['enable_buttons'] = config.getboolean('config', 'enable_buttons')
     main.settings['enable_scrollbar'] = config.getboolean('config', 'enable_scrollbar')
