@@ -13,8 +13,10 @@ MENU = {}
 
 # -----------------------------------------------------------------------------
 class main():
+    """
+    """
     settings = {'pen_device_name':'Tablet Monitor Pen' # must be defined here
-            + strftime(" %H%M%S", gmtime())}           # for pressure to work
+                + strftime(" %H%M%S", gmtime())}       # for pressure to work
     dev = None
     endpoint = None
     vpen = None
@@ -31,6 +33,8 @@ class main():
 
 # -----------------------------------------------------------------------------
 def find_usb_device():
+    """
+    """
     sys.stdout.write("Finding USB device. . . ")
 
     main.dev = usb.core.find(idVendor=0x256c, idProduct=0x006e)
@@ -94,6 +98,8 @@ def prepare_driver():
 
 # -----------------------------------------------------------------------------
 def setup_driver():
+    """
+    """
 
     sys.stdout.write("Setting up driver. . . ")
 
@@ -146,6 +152,8 @@ def setup_driver():
 
 # -----------------------------------------------------------------------------
 def multi_monitor():
+    """
+    """
 
     if not main.settings['enable_multi_monitor']:
         return
@@ -174,6 +182,8 @@ def multi_monitor():
 
 # -----------------------------------------------------------------------------
 def main_loop():
+    """
+    """
 
     print('\nHuion Kamvas driver should now be running\n')
 
@@ -266,6 +276,8 @@ def do_shortcut(sequence):
 
 # -----------------------------------------------------------------------------
 def keypress(sequence):
+    """
+    """
     if main.settings['enable_notifications']:
         run('notify-send {}'.format(sequence.upper()), shell=True, check=True)
 
@@ -274,6 +286,8 @@ def keypress(sequence):
 
 # -----------------------------------------------------------------------------
 def switch_menu(new_menu):
+    """
+    """
 
     if not main.settings['enable_buttons'] or main.settings['buttons'] == 0:
         return
@@ -293,6 +307,8 @@ def switch_menu(new_menu):
 
 # -----------------------------------------------------------------------------
 def read_config():
+    """
+    """
 
     sys.stdout.write("Reading configuration. . . ")
 
