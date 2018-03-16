@@ -11,7 +11,6 @@
  * Scroll bar (customizable shortcuts)
  * Multiple switchable buttons menus
 
-
 ## Usage
 
  * Install the dependencies.
@@ -186,4 +185,40 @@ b8 = key shift+r       # rotate
 b9 = [menu_main]
 ```
 
+
+## Supporting More Models
+
+Current supported models are: `H950P`, `GT-191`, `GT-220 v2` and `GT-221 PRO`.
+
+If you have access to a different Huion model, please open a new issue, pasting the output of the following commands (with your tablet plugged in):
+
+```
+BUS=$(lsusb | grep 256c:006e | cut -d' ' -f2)
+ADDR=$(lsusb | grep 256c:006e | cut -d' ' -f4 | cut -c-3)
+sudo /usr/local/bin/uclogic-probe $BUS $ADDR | /usr/local/bin/uclogic-decode
+```
+
+It should give an output similar to the following:
+
+```
+    |                Product: Tablet Monitor
+ 64 |        Params block #1: ??????
+    |                          Max X: 37540
+    |                          Max Y: 21120
+    |                   Max pressure: 8191
+    |                     Resolution: 2000
+    |
+ 79 |         Internal model:
+ 7b |         Buttons status: HK On
+ c8 |        Params block #2: ????????
+    |                          Max X: 95352
+    |                          Max Y: 53645
+    |                   Max pressure: 8191
+    |                     Resolution: 5080
+    |
+ c9 |      Unknown string #1: HUION_M167_170623
+ ca |  Internal manufacturer: HUION Animation Technology Co.,ltd
+```
+
+With that information, it will become possible to add the tablet to the `config.ini` file.
 
