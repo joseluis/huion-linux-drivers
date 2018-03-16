@@ -181,30 +181,15 @@ def main_loop():
             is_buttonbar = data[1] == 224
 
             if is_buttonbar and main.settings['enable_buttons']:
-
                 # get the button value in power of two (1, 2, 4, 16, 32...)
                 BUTTON_VAL = (data[5] << 8) + data[4]
 
                 if BUTTON_VAL > 0: # 0 means release
-
                     # convert to the exponent (0, 1, 2, 3, 4...)
                     BUTTON_VAL = int(math.log(BUTTON_VAL, 2))
+                    print(BUTTON_VAL) # DEBUG
 
-                    print(BUTTON_VAL)
-
-                    # empty shortuct
-                    if MENU[main.current_menu][BUTTON_VAL] == "":
-                        pass
-
-                    # links to menu
-                    elif MENU[main.current_menu][BUTTON_VAL].startswith('[') \
-                        and MENU[main.current_menu][BUTTON_VAL].endswith(']'):
-                        switch_menu(MENU[main.current_menu][BUTTON_VAL].strip('[]'))
-
-                    # keyboard shortcut
-                    else:
-                        #print("keypress(%s) == %s" % (BUTTON_VAL, MENU[main.current_menu][BUTTON_VAL])) # DEBUG
-                        keypress(MENU[main.current_menu][BUTTON_VAL])
+                    do_shortcut(MENU[main.current_menu][BUTTON_VAL])
 
 
             elif is_scrollbar and main.settings['enable_scrollbar']:
@@ -243,6 +228,25 @@ def main_loop():
             if e.args == ('Operation timed out',):
                 print(e, file=sys.stderr)
                 continue
+
+
+# -----------------------------------------------------------------------------
+def do_shortcut(sequence):
+    """ Interprets whether the shortcut is a keypress or a menu link
+        and triggers the appropiate action in either case.
+    """
+    # empty shortcut
+    if sequence == "":
+        pass
+
+    # is a menu link
+    elif sequence.startswith('[') and sequence.endswith(']'):
+        switch_menu(sequence.strip('[]'))
+
+    # is a keyboard shortcut
+    else:
+        #print("keypress == {}".format(sequence)) # DEBUG
+        keypress(sequence)
 
 
 # -----------------------------------------------------------------------------
@@ -327,11 +331,15 @@ def read_config():
             for n in range(0, main.settings['buttons']):
                 btn = 'b' + str(n)
                 if config.has_option(section, btn):
-                    MENU[section][n] = config.get(section, btn)
+                    MENU[section][n] = config.get(section, btn).split("#",1)[0].strip()
                 else:
                     MENU[section][n] = ""
-
                 # print("button {} = {}".format(n, MENU[section][n])) # DEBUG
+
+            # scrollbar
+            if main.settings['scrollbar']:
+                MENU[section]['scroll_up'] = config.get(section, 'su').split("#",1)[0].strip()
+                MENU[section]['scroll_down'] = config.get(section, 'sd').split("#",1)[0].strip()
 
     main.current_menu = main.settings['start_menu']
 

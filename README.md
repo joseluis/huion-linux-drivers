@@ -3,13 +3,13 @@
 ## Supported Features
 
  * Multiple Models (Kamvas GT-191, GT-220-v2, GT-221-PRO…)
- * Screen Monitor
- * Cursor Positioning
- * Pressure Sensitivity
- * Stylus Buttons
- * Tablet Buttons 
- * Scroll bar
- * Multi-Monitor Setup
+ * Tablet Screen (and multi-monitor setups)
+ * Cursor positioning
+ * Pressure sensitivity
+ * Stylus buttons
+ * Tablet buttons (customizable shortcuts)
+ * Scroll bar (customizable shortcuts)
+ * Multiple switchable buttons menus
 
 
 ## Usage
@@ -108,12 +108,19 @@ First, assign the menu you're going to use as the starting menu.
 start_menu = [menu_simple]
 
 [menu_simple]
+
+# upper buttons
 b0 = key Tab           # hide interface
 b1 = key r             # rect select (gimp) & pick layer (krita)
 b2 = key ctrl+x        # cut
 b3 = key ctrl+c        # copy
 b4 = key ctrl+v        # paste
-#
+
+# scrollbar
+su = click 4           # mouse wheel up
+sd = click 5           # mouse wheel down
+
+# lower buttons
 b5 = key ctrl+z        # undo
 b6 = key ctrl+y        # redo (gimp)
 b7 = key ctrl+shift+z  # redo (krita)
@@ -134,6 +141,9 @@ b2 = key ctrl+s        # save
 b3 = key ctrl+o        # open
 b4 = key ctrl+w        # close
 #
+su = click 4           # mouse wheel up
+sd = click 5           # mouse wheel down
+#
 b5 = ctrl+x            # cut
 b6 = ctrl+c            # copy
 b7 = ctrl+v            # paste
@@ -147,6 +157,9 @@ b1 = key b             # draw tool
 b2 = key r             # pick layer
 b3 = key w             # wrap mode
 b4 = key e             # erase mode
+#
+su = key ctrl+minus    # zoom out
+sd = key ctrl+plus     # zoom in
 #
 b5 = key ctrl+z        # redo
 b6 = key ctrl+shift+z  # undo
@@ -162,6 +175,9 @@ b1 = key p             # paintbrush
 b2 = key r             # rect select
 b3 = key c             # clone
 b4 = key shift+e       # eraser
+#
+su = key minus         # zoom out
+sd = key plus          # zoom in
 #
 b5 = key ctrl+z        # undo
 b6 = key ctrl+y        # redo
