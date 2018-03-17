@@ -1,14 +1,13 @@
-# User Space Linux Drivers for Huion (Kamvas) Tablets
+# User Space Linux Drivers for Huion Tablets
 
 ## Features
 
- * Supports multiple models
+ * Supports multiple models, including Kamvas
  * Compatible with multi-monitor setups
  * Precise cursor positioning
  * Full pressure sensitivity
  * Both stylus buttons
- * Customizable tablet buttons shortcuts
- * Customizable scroll bar shortcuts
+ * Customizable buttons and scrollbar shortcuts
  * Multiple sets of shortcuts
  * Easy configuration file
 
@@ -83,13 +82,13 @@ with the correct values for your particular setup. Like this:
 # Multi Monitor Configuration
 
 enable_multi_monitor = true
-total_screen_width  = 2560 + 1920 + ${tablet_width}
+total_screen_width  = 2560 + 1920 + 1920
 total_screen_height = 1440
 tablet_offset_x     = 2560 + 1920
 tablet_offset_y     = 0
 ```
 
-[More information in the wiki](https://github.com/joseluis/huion-linux-drivers/wiki/Multi-Monitor)
+[More information about multiple monitors in the wiki](https://github.com/joseluis/huion-linux-drivers/wiki/Multi-Monitor)
 
 
 ## Shortcuts
