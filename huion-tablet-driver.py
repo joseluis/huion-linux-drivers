@@ -211,7 +211,7 @@ def main_loop():
                     BUTTON_VAL = int(math.log(BUTTON_VAL, 2))
                     # print(BUTTON_VAL) # DEBUG
 
-                    do_shortcut(MENU[main.current_menu][BUTTON_VAL])
+                    do_shortcut("button", MENU[main.current_menu][BUTTON_VAL])
 
             elif is_scrollbar and main.settings['enable_scrollbar']:
                 SCROLL_VAL = data[5]
@@ -222,10 +222,10 @@ def main_loop():
                         SCROLL_VAL_PREV=SCROLL_VAL
 
                     if SCROLL_VAL > SCROLL_VAL_PREV:
-                        keypress(MENU[main.current_menu]['scroll_up'])
+                        do_shortcut("scrollbar", MENU[main.current_menu]['scroll_up'])
 
                     elif SCROLL_VAL < SCROLL_VAL_PREV:
-                        keypress(MENU[main.current_menu]['scroll_down'])
+                        do_shortcut("scrollbar", MENU[main.current_menu]['scroll_down'])
 
                 SCROLL_VAL_PREV = SCROLL_VAL
 
@@ -256,7 +256,7 @@ def main_loop():
 
 
 # -----------------------------------------------------------------------------
-def do_shortcut(sequence):
+def do_shortcut(title, sequence):
     """ Interprets whether the shortcut is a keypress or a menu link
         and triggers the appropiate action in either case.
     """
@@ -271,15 +271,16 @@ def do_shortcut(sequence):
     # is a keyboard shortcut
     else:
         # print("keypress == {}".format(sequence)) # DEBUG
-        keypress(sequence)
+        keypress(title, sequence)
 
 
 # -----------------------------------------------------------------------------
-def keypress(sequence):
+def keypress(title, sequence):
     """
     """
     if main.settings['enable_notifications']:
-        run('notify-send {}'.format(sequence.upper()), shell=True, check=True)
+        run('notify-send "{}" "{}"'.format(title, sequence),
+            shell=True, check=True)
 
     run("xdotool {}".format(sequence), shell=True, check=True)
 
@@ -295,14 +296,17 @@ def switch_menu(new_menu):
     main.current_menu = new_menu
 
     # print the menu
-    print("\n" + MENU[new_menu]['title'])
+    menu_title = MENU[new_menu]['title']
+    menu_text = ""
     for n in range(0, main.settings['buttons']):
-        print("button {} = {}".format(n, MENU[main.current_menu][n]))
+        menu_text += "\nbutton {} = {}".format(n, MENU[main.current_menu][n])
+
+    print(menu_title + menu_text)
 
 
     if main.settings['enable_notifications']:
-        run('notify-send "{}"'.format(MENU[new_menu]['title']), shell=True,
-            check=True)
+        run('notify-send "{}" "{}"'.format(menu_title, menu_text),
+            shell=True, check=True)
 
 
 # -----------------------------------------------------------------------------
@@ -379,7 +383,7 @@ def read_config():
                 btn = 'b' + str(n)
                 if config.has_option(section, btn):
                     MENU[section][n] = config.get(
-                        section, btn).split("#",1)[0].strip()
+                        section, btn).strip()
                 else:
                     MENU[section][n] = ""
 
@@ -388,9 +392,9 @@ def read_config():
             # scrollbar
             if main.settings['scrollbar']:
                 MENU[section]['scroll_up'] = config.get(
-                    section, 'su').split("#",1)[0].strip()
+                    section, 'su').strip()
                 MENU[section]['scroll_down'] = config.get(
-                    section, 'sd').split("#",1)[0].strip()
+                    section, 'sd').strip()
 
     main.current_menu = main.settings['start_menu']
 
