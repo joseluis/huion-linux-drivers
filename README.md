@@ -1,22 +1,24 @@
 # User Space Linux Drivers for Huion (Kamvas) Tablets
 
-## Supported Features
+## Features
 
- * Multiple Models (Kamvas GT-191, GT-220-v2, GT-221-PRO…)
- * Tablet Screen (and multi-monitor setups)
- * Cursor positioning
- * Pressure sensitivity
- * Stylus buttons
- * Tablet buttons (customizable shortcuts)
- * Scroll bar (customizable shortcuts)
- * Multiple switchable buttons menus
+ * Supports multiple models
+ * Compatible with multi-monitor setups
+ * Precise cursor positioning
+ * Full pressure sensitivity
+ * Both stylus buttons
+ * Customizable tablet buttons shortcuts
+ * Customizable scroll bar shortcuts
+ * Multiple sets of shortcuts
+ * Easy configuration file
+
 
 ## Usage
 
- * Install the dependencies.
- * Clone or download this repository (You only need `huion-tablet-driver.py` and `config.ini` files).
+ * Follow the requirements: Install the dependencies and the xorg extra code.
+ * Download this repository (You only need `huion-tablet-driver.py` and `config.ini`).
  * Edit `config.ini` to match your tablet, multi-monitor setup and desired shortcuts.
- * Run `./huion-tablet-driver.py` with **superuser** privileges (e.g. as root or with sudo).
+ * Run `sudo ./huion-tablet-driver.py` (needs superuser privileges)
 
 
 ## Requirements
@@ -24,7 +26,7 @@
 ### Dependencies
 
  * [python](https://www.python.org/) version 3.5 or greater
- * [uclogic-tools](https://github.com/DIGImend/uclogic-tools) ([read why](https://github.com/benthor/HuionKamvasGT191LinuxDriver/issues/1#issuecomment-351207116))
+ * [uclogic-tools](https://github.com/DIGImend/uclogic-tools) ([read why][2])
 
     ```
     # Installation Steps:
@@ -39,8 +41,12 @@
  * [evdev](https://wiki.gentoo.org/wiki/Evdev)
  * [python-evdev](https://github.com/gvalkov/python-evdev)
  * [pyusb](https://walac.github.io/pyusb/)
- * [xdotool](http://www.semicomplete.com/projects/xdotool/) (optional for button shorcuts)
- * [notify-send](https://wiki.archlinux.org/index.php/Desktop_notifications) (optional for desktop notifications)
+ * [xdotool][7] (optional, for button shorcuts)
+ * [notify-send][8] (optional, for desktop notifications)
+
+[2]: https://github.com/benthor/HuionKamvasGT191LinuxDriver/issues/1#issuecomment-351207116
+[7]: http://www.semicomplete.com/projects/xdotool/
+[8]: https://wiki.archlinux.org/index.php/Desktop_notifications
 
 
 Install packages in Archlinux:
@@ -54,10 +60,10 @@ Install packages in Ubuntu:
 $ sudo apt install xinput xserver-xorg-input-evdev python3-evdev python3-usb xdotool libnotify-bin
 ```
 
+### Xorg Extra Code
 
-### Xorg Configuration
-
-You will likely also need to add some code to the Xorg server. Create a new file in` /etc/X11/xorg.conf.d/evdev-tablet.conf` with the following content:
+You will likely also need to add some code to the Xorg server.
+Create a new file in` /etc/X11/xorg.conf.d/evdev-tablet.conf` with the following content:
 
 ```
 Section "InputClass"
@@ -86,12 +92,12 @@ tablet_offset_y     = 0
 [More information in the wiki](https://github.com/joseluis/huion-linux-drivers/wiki/Multi-Monitor)
 
 
-## Buttons Shortcuts
+## Shortcuts
 
-To customize the shortcuts associated with the buttons, edit the file `config.ini`, and use the xdotool syntax for the buttons actions.
+To customize the shortcuts associated with the buttons and the scrollbar,
+edit the file `config.ini`, and use the xdotool syntax for the buttons actions.
 
 First, assign the menu you're going to use as the starting menu.
-
 
 ### Example with a Single Buttons Menu
 
@@ -127,5 +133,5 @@ b9 = key 6             # turn right (krita)
 Current supported models are: `H950P`, `GT-191`, `GT-220 v2` and `GT-221 PRO`.
 
 If you have access to a different Huion model, please open a new issue,
-pasting the console output after executing the driver, so I can add it.
+pasting the console output after executing the driver.
 
