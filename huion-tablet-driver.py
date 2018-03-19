@@ -3,7 +3,7 @@
 import usb.core, usb.util
 import sys
 from evdev import UInput, ecodes, AbsInfo
-from subprocess import run, PIPE
+import subprocess as sp
 import math, ast
 from configparser import ConfigParser, ExtendedInterpolation
 from time import gmtime, strftime
@@ -27,6 +27,7 @@ class main():
         read_config()
         prepare_driver()
         setup_driver()
+        calibrate()
         multi_monitor()
         main_loop()
 
@@ -71,29 +72,28 @@ def prepare_driver():
     module_old   = "hid_uclogic"
     module_new   = "uinput"
 
-    module_found = run('lsmod | grep "^{}"'.format(module_old), shell=True)
+    module_found = sp.run('lsmod | grep "^{}"'.format(module_old), shell=True)
 
     if module_found.returncode == 0:
-        run('rmmod "{}"'.format(module_old), shell=True)
+        sp.run('rmmod "{}"'.format(module_old), shell=True)
     elif module_found.returncode == 2:
         print('Grep error 2')
         exit()
 
-    run('modprobe "{}"'.format(module_new), shell=True)
+    sp.run('modprobe "{}"'.format(module_new), shell=True)
 
-    uc_str = run('"{}/uclogic-probe" "{}" "{}" | "{}/uclogic-decode"'.format(
+    cmd='"{}/uclogic-probe" "{}" "{}" | "{}/uclogic-decode"'.format(
         main.settings['uclogic_bins'], main.dev.bus, main.dev.address,
-        main.settings['uclogic_bins']), shell=True,
-        stdout=PIPE)
-
-    if uc_str.returncode:
-        print("ERROR running uclogic")
-        sys.exit(1)
+        main.settings['uclogic_bins'])
+    try:
+        uc_str = sp.run(cmd, shell=True, check=True, stdout=sp.PIPE)
+    except sp.CalledProcessError as e:
+        run_error(e, cmd)
 
     print("Done!")
 
     if main.settings['show_uclogic_info']:
-        print('-'*80+'\n'+ uc_str.stdout.decode("utf-8") +'-'*80) # DEBUG
+        print('-'*80+'\n'+ uc_str.stdout.decode("utf-8") +'-'*80)
 
 
 # -----------------------------------------------------------------------------
@@ -169,15 +169,45 @@ def multi_monitor():
     C2=(main.settings["screen_height"] / main.settings["total_screen_height"])
     C3=(main.settings["tablet_offset_y"] / main.settings["total_screen_height"])
 
-    run('xinput set-prop "{}" --type=float "Coordinate Transformation Matrix" {} 0 {} 0 {} {} 0 0 1'.format(
-        main.settings['pen_device_name'], C0, C1, C2, C3),
-        shell=True, check=True)
+    cmd='xinput set-prop "{}" --type=float "{}" {} 0 {} 0 {} {} 0 0 1'.format(
+        main.settings['pen_device_name'], "Coordinate Transformation Matrix", 
+        C0, C1, C2, C3)
+    try:
+        sp.run(cmd, shell=True, check=True)
+    except sp.CalledProcessError as e:
+        run_error(e, cmd)
 
     print('Done!')
 
     print('\tMapped tablet area to "{}x{} + {}x{}"'.format(
         main.settings["screen_width"], main.settings["screen_height"],
         main.settings["tablet_offset_x"], main.settings["tablet_offset_y"]))
+
+# -----------------------------------------------------------------------------
+def calibrate():
+
+    if not main.settings['enable_calibration']:
+        return
+
+    sys.stdout.write("Calibrating. . . ")
+
+    cmd='xinput set-int-prop "{}" "Evdev Axis Calibration" 32 {} {} {} {}'.format(
+            main.settings['pen_device_name'],
+            main.settings['calibrate_min_x'], main.settings['calibrate_max_x'],
+            main.settings['calibrate_min_y'], main.settings['calibrate_max_y'])
+    try:
+        sp.run(cmd, shell=True, check=True)
+    except sp.CalledProcessError as e:
+        run_error(e, cmd)
+
+    cmd='xinput set-int-prop "{}" "Evdev Axes Swap" 8 0'.format(
+        main.settings['pen_device_name'])
+    try:
+        sp.run(cmd, shell=True, check=True)
+    except sp.CalledProcessError as e:
+        run_error(e, cmd)
+
+    print('Done!')
 
 
 # -----------------------------------------------------------------------------
@@ -209,8 +239,6 @@ def main_loop():
                 if BUTTON_VAL > 0: # 0 means release
                     # convert to the exponent (0, 1, 2, 3, 4...)
                     BUTTON_VAL = int(math.log(BUTTON_VAL, 2))
-                    # print(BUTTON_VAL) # DEBUG
-
                     do_shortcut("button", MENU[main.current_menu][BUTTON_VAL])
 
             elif is_scrollbar and main.settings['enable_scrollbar']:
@@ -218,7 +246,6 @@ def main_loop():
 
                 if SCROLL_VAL > 0: # 0 means release
                     if SCROLL_VAL_PREV == 0:
-                        # print("Scrolling...") # DEBUG
                         SCROLL_VAL_PREV=SCROLL_VAL
 
                     if SCROLL_VAL > SCROLL_VAL_PREV:
@@ -233,9 +260,6 @@ def main_loop():
                 X = (data[8] << 16) + (data[3] << 8) + data[2]
                 Y = (data[5] << 8) + data[4]
                 PRESS = (data[7] << 8) + data[6]
-
-                # if PRESS > 0:
-                    # print("{}  ".format(PRESS), end='\r') # DEBUG
 
                 main.vpen.write(ecodes.EV_ABS, ecodes.ABS_X, X)
                 main.vpen.write(ecodes.EV_ABS, ecodes.ABS_Y, Y)
@@ -270,7 +294,6 @@ def do_shortcut(title, sequence):
 
     # is a keyboard shortcut
     else:
-        # print("keypress == {}".format(sequence)) # DEBUG
         keypress(title, sequence)
 
 
@@ -279,17 +302,23 @@ def keypress(title, sequence):
     """
     """
     if main.settings['enable_notifications']:
-        run('notify-send "{}" "{}"'.format(title, sequence),
-            shell=True, check=True)
+        cmd='notify-send "{}" "{}"'.format(title, sequence)
+        try:
+            sp.run(cmd, shell=True, check=True)
+        except sp.CalledProcessError as e:
+            run_error(e, cmd)
 
-    run("xdotool {}".format(sequence), shell=True, check=True)
+    cmd="xdotool {}".format(sequence)
+    try:
+        sp.run(cmd, shell=True, check=True)
+    except sp.CalledProcessError as e:
+        run_error(e, cmd)
 
 
 # -----------------------------------------------------------------------------
 def switch_menu(new_menu):
     """
     """
-
     if not main.settings['enable_buttons'] or main.settings['buttons'] == 0:
         return
 
@@ -303,10 +332,24 @@ def switch_menu(new_menu):
 
     print(menu_title + menu_text)
 
-
     if main.settings['enable_notifications']:
-        run('notify-send "{}" "{}"'.format(menu_title, menu_text),
-            shell=True, check=True)
+        cmd='notify-send "{}" "{}"'.format(menu_title, menu_text)
+        try:
+            sp.run(cmd, shell=True, check=True)
+        except sp.CalledProcessError as e:
+            run_error(e, cmd)
+
+
+# -----------------------------------------------------------------------------
+def run_error(error, command, exit=True):
+    """
+    """
+    print("ERROR running the following comand:")
+    print("\t{}".format(cmd))
+    print("RETURN CODE".format(e.returncode))
+    print("OUTPUT:\n{}".format(e.output))
+    if exit:
+        sys.exit(1)
 
 
 # -----------------------------------------------------------------------------
@@ -350,15 +393,27 @@ def read_config():
     main.settings['enable_multi_monitor'] = config.getboolean('config',
         'enable_multi_monitor')
     main.settings['total_screen_width'] = ast.literal_eval(config.get('config',
-        'total_screen_width'))
+        'total_screen_width').split("#",1)[0].strip())
     main.settings['total_screen_height'] = ast.literal_eval(config.get('config',
-        'total_screen_height'))
+        'total_screen_height').split("#",1)[0].strip())
     main.settings['tablet_offset_x'] = ast.literal_eval(config.get('config',
-        'tablet_offset_x'))
+        'tablet_offset_x').split("#",1)[0].strip())
     main.settings['tablet_offset_y'] = ast.literal_eval(config.get('config',
-        'tablet_offset_y'))
+        'tablet_offset_y').split("#",1)[0].strip())
 
-    # Miscellaneus
+    # tablet calibration
+    main.settings['enable_calibration'] = config.getboolean('config',
+        'enable_calibration')
+    main.settings['calibrate_min_x'] = ast.literal_eval(config.get('config',
+        'calibrate_min_x').split("#",1)[0].strip())
+    main.settings['calibrate_max_x'] = ast.literal_eval(config.get('config',
+        'calibrate_max_x').split("#",1)[0].strip())
+    main.settings['calibrate_min_y'] = ast.literal_eval(config.get('config',
+        'calibrate_min_y').split("#",1)[0].strip())
+    main.settings['calibrate_max_y'] = ast.literal_eval(config.get('config',
+        'calibrate_max_y').split("#",1)[0].strip())
+
+    # miscellaneus
     main.settings['uclogic_bins'] = config.get('config', 'uclogic_bins')
     main.settings['show_uclogic_info'] = config.getboolean('config',
         'show_uclogic_info')
@@ -376,8 +431,6 @@ def read_config():
             else:
                 MENU[section]['title'] = "[{}]".format(section)
 
-            # print("\n{}".format(MENU[section]['title'])) # DEBUG
-
             # buttons
             for n in range(0, main.settings['buttons']):
                 btn = 'b' + str(n)
@@ -386,8 +439,6 @@ def read_config():
                         section, btn).strip()
                 else:
                     MENU[section][n] = ""
-
-                # print("button {} = {}".format(n, MENU[section][n])) # DEBUG
 
             # scrollbar
             if main.settings['scrollbar']:
