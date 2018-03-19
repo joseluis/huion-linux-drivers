@@ -170,7 +170,7 @@ def multi_monitor():
     C3=(main.settings["tablet_offset_y"] / main.settings["total_screen_height"])
 
     cmd='xinput set-prop "{}" --type=float "{}" {} 0 {} 0 {} {} 0 0 1'.format(
-        main.settings['pen_device_name'], "Coordinate Transformation Matrix", 
+        main.settings['pen_device_name'], "Coordinate Transformation Matrix",
         C0, C1, C2, C3)
     try:
         sp.run(cmd, shell=True, check=True)
@@ -345,9 +345,8 @@ def run_error(error, command, exit=True):
     """
     """
     print("ERROR running the following comand:")
-    print("\t{}".format(cmd))
-    print("RETURN CODE".format(e.returncode))
-    print("OUTPUT:\n{}".format(e.output))
+    print("\t{}".format(command))
+    print("RETURN CODE: {}".format(error.returncode))
     if exit:
         sys.exit(1)
 
