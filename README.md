@@ -42,21 +42,24 @@
  * [pyusb](https://walac.github.io/pyusb/)
  * [xdotool][7] (optional, for button shorcuts)
  * [notify-send][8] (optional, for desktop notifications)
+ * [xrandr][9] (optional, for monitor configuration) (and [arandr][10])
 
 [2]: https://github.com/benthor/HuionKamvasGT191LinuxDriver/issues/1#issuecomment-351207116
 [7]: http://www.semicomplete.com/projects/xdotool/
 [8]: https://wiki.archlinux.org/index.php/Desktop_notifications
+[9]: https://wiki.archlinux.org/index.php/xrandr
+[10]: https://christian.amsuess.com/tools/arandr/
 
 
 Install packages in Archlinux:
 
 ```
-$  pacman -S xorg-xinput xf86-input-evdev python-evdev python-pyusb xdotool libnotify
+$  pacman -S xorg-xinput xf86-input-evdev python-evdev python-pyusb xdotool libnotify xorg-xrandr arandr
 ```
 
 Install packages in Ubuntu:
 ```
-$ sudo apt install xinput xserver-xorg-input-evdev python3-evdev python3-usb xdotool libnotify-bin
+$ sudo apt install xinput xserver-xorg-input-evdev python3-evdev python3-usb xdotool libnotify-bin xrandr arandr
 ```
 
 ### Xorg Extra Code
@@ -76,17 +79,17 @@ EndSection
 ## Multi-Monitor
 
 If you have a multi-monitor setup, edit your copy of `config.ini`
-with the correct values for your particular setup. Like this:
+with the correct values for your particular setup.
 
 ```
 # Multi Monitor Configuration
-
-enable_multi_monitor = true
-total_screen_width  = 2560 + 1920 + 1920
-total_screen_height = 1440
-tablet_offset_x     = 2560 + 1920
-tablet_offset_y     = 0
+enable_multi_monitor  = true
+enable_xrandr         = false
+current_monitor_setup = [monitor_3]
 ```
+
+You'll have to customize your current monitor setup, by modifying one of the
+existing examples in the section 3 of the `config.ini` file.
 
 [More information about multiple monitors in the wiki](https://github.com/joseluis/huion-linux-drivers/wiki/Multi-Monitor)
 
