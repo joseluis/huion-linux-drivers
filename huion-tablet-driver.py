@@ -164,6 +164,14 @@ def multi_monitor():
         print("No tablet screen!")
         return
 
+
+    if main.settings['enable_xrandr']:
+        cmd='xrandr {}'.format(main.settings['xrandr_args'])
+        try:
+            sp.run(cmd, shell=True, check=True)
+        except sp.CalledProcessError as e:
+            run_error(e, cmd)
+
     C0=(main.settings["screen_width"] / main.settings["total_screen_width"])
     C1=(main.settings["tablet_offset_x"] / main.settings["total_screen_width"])
     C2=(main.settings["screen_height"] / main.settings["total_screen_height"])
@@ -363,7 +371,9 @@ def read_config():
     config.read('config.ini') # TODO manage errors
 
     # tablet info
-    current_tablet = config.get('config', 'current_tablet').strip('[]')
+
+    current_tablet = config.get('config',
+        'current_tablet').split("#",1)[0].strip('[]').strip()
     main.settings['model_name'] = config.get(current_tablet, 'model_name')
     main.settings['pen_max_x'] = ast.literal_eval(config.get(current_tablet,
         'pen_max_x'))
@@ -389,18 +399,27 @@ def read_config():
         'enable_scrollbar')
 
     # multi-monitor setup
+
     main.settings['enable_multi_monitor'] = config.getboolean('config',
         'enable_multi_monitor')
-    main.settings['total_screen_width'] = ast.literal_eval(config.get('config',
+    main.settings['enable_xrandr'] = config.getboolean('config', 'enable_xrandr')
+
+    current_monitor_setup = config.get('config',
+        'current_monitor_setup').split("#",1)[0].strip('[]').strip()
+    main.settings['total_screen_width'] = ast.literal_eval(config.get(current_monitor_setup,
         'total_screen_width').split("#",1)[0].strip())
-    main.settings['total_screen_height'] = ast.literal_eval(config.get('config',
+    main.settings['total_screen_height'] = ast.literal_eval(config.get(current_monitor_setup,
         'total_screen_height').split("#",1)[0].strip())
-    main.settings['tablet_offset_x'] = ast.literal_eval(config.get('config',
+    main.settings['tablet_offset_x'] = ast.literal_eval(config.get(current_monitor_setup,
         'tablet_offset_x').split("#",1)[0].strip())
-    main.settings['tablet_offset_y'] = ast.literal_eval(config.get('config',
+    main.settings['tablet_offset_y'] = ast.literal_eval(config.get(current_monitor_setup,
         'tablet_offset_y').split("#",1)[0].strip())
 
+    main.settings['xrandr_args'] = config.get(current_monitor_setup,
+        'xrandr_args').split("#",1)[0].strip()
+
     # tablet calibration
+
     main.settings['enable_calibration'] = config.getboolean('config',
         'enable_calibration')
     main.settings['calibrate_min_x'] = ast.literal_eval(config.get('config',
@@ -409,10 +428,11 @@ def read_config():
         'calibrate_max_x').split("#",1)[0].strip())
     main.settings['calibrate_min_y'] = ast.literal_eval(config.get('config',
         'calibrate_min_y').split("#",1)[0].strip())
-    main.settings['calibrate_max_y'] = ast.literal_eval(config.get('config',
-        'calibrate_max_y').split("#",1)[0].strip())
+    main.settings['calibrate_max_y'] = config.get('config',
+        'calibrate_max_y').split("#",1)[0].strip()
 
     # miscellaneus
+
     main.settings['uclogic_bins'] = config.get('config', 'uclogic_bins')
     main.settings['show_uclogic_info'] = config.getboolean('config',
         'show_uclogic_info')
