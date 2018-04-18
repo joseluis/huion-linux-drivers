@@ -30,6 +30,8 @@
     ```
     # Installation Steps:
 
+    # sudo apt install make automake gcc pkg-config libusb-1.0-0-dev  # For ubuntu
+
     git clone https://github.com/DIGImend/uclogic-tools
     cd uclogic-tools
     ./bootstrap && ./configure --prefix=/usr/local/ && make
@@ -59,7 +61,7 @@ $  pacman -S xorg-xinput xf86-input-evdev python-evdev python-pyusb xdotool libn
 
 Install packages in Ubuntu:
 ```
-$ sudo apt install xinput xserver-xorg-input-evdev python3-evdev python3-usb xdotool libnotify-bin xrandr arandr
+$ sudo apt install xinput xserver-xorg-input-evdev python3-evdev python3-usb xdotool libnotify-bin arandr
 ```
 
 ### Xorg Extra Code
