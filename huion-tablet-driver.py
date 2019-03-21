@@ -270,14 +270,15 @@ def main_loop():
 
 
             if main.settings['debug_mode']:
-                print("data[{}] = {}".format(len(data), data))
-                interpreted_data = {
-                    "TYPE" : data[1],
-                    "X": "[8]<<16+[3]<<8+[2]={}".format((data[8]<<16)+(data[3]<<8)+data[2]),
-                    "Y": "[5]<<8+[4]={}".format((data[5]<<8)+data[4]),
-                    "PRESS": "[7]<<8+[6]={}".format((data[7]<<8)+data[6])
-                }
-                print(interpreted_data)
+                if not (is_hover):
+                    print("data[{}] = {}".format(len(data), data))
+                    interpreted_data = {
+                        "TYPE" : data[1],
+                        "X": "[8]<<16+[3]<<8+[2]={}".format((data[8]<<16)+(data[3]<<8)+data[2]),
+                        "Y": "[5]<<8+[4]={}".format((data[5]<<8)+data[4]),
+                        "PRESS": "[7]<<8+[6]={}".format((data[7]<<8)+data[6])
+                    }
+                    print(interpreted_data)
 
 
             # BUTTON EVENT
