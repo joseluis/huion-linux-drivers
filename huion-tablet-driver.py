@@ -177,6 +177,8 @@ def multi_monitor():
 
     if main.settings['enable_xrandr']:
         cmd='xrandr {}'.format(main.settings['xrandr_args'])
+        if main.settings['debug_mode']:
+            print(cmd)
         try:
             sp.run(cmd, shell=True, check=True)
         except sp.CalledProcessError as e:
@@ -244,11 +246,36 @@ def main_loop():
             data = main.dev.read(main.endpoint.bEndpointAddress,
                 main.endpoint.wMaxPacketSize)
 
-            is_touch = data[1] == 129
-            is_pen_btn1 = data[1] == 130
-            is_pen_btn2 = data[1] == 132
+            # DATA INTERPRETATION EXAMPLE:
+
+            #  0    1      2   3    4   5  6  7  8  9  10  11  12    data index
+            #  ?  TYPE     X   X    Y   Y  P  P  X                   FIELD
+            # --------   -------- -------- ----  -
+            # [8, 128,   254, 70, 139, 94, 0, 0, 0, 0,  0,  0,  0]   e.g. value
+            #  ?  touch                                              e.g. meaning
+            #
+            # [8,  129,  144, 74, 231, 151, 144, 2, 1, 0, 0, 0]
+            #     touch
+
+            is_hover     = data[1] == 128
+            is_touch     = data[1] == 129
+            is_pen_btn1  = data[1] == 130
+            is_pen_btn2  = data[1] == 132
             is_scrollbar = data[1] == 240
             is_buttonbar = data[1] == 224
+
+            if main.settings['debug_mode']:
+                print("data[{}] = {}".format(len(data), data))
+                interpreted_data = {
+                    "TYPE" : data[1],
+                    "X": "[8]<<16+[3]<<8+[2]={}".format((data[8]<<16)+(data[3]<<8)+data[2]),
+                    "Y": "[5]<<8+[4]={}".format((data[5]<<8)+data[4]),
+                    "PRESS": "[7]<<8+[6]={}".format((data[7]<<8)+data[6])
+                }
+                print(interpreted_data)
+
+
+            # BUTTON EVENT
 
             if is_buttonbar and main.settings['enable_buttons']:
                 # get the button value in power of two (1, 2, 4, 16, 32...)
@@ -258,6 +285,8 @@ def main_loop():
                     # convert to the exponent (0, 1, 2, 3, 4...)
                     BUTTON_VAL = int(math.log(BUTTON_VAL, 2))
                     do_shortcut("button", MENU[main.current_menu][BUTTON_VAL])
+
+            # SCROLLBAR EVENT
 
             elif is_scrollbar and main.settings['enable_scrollbar']:
                 SCROLL_VAL = data[5]
@@ -280,10 +309,13 @@ def main_loop():
 
                 SCROLL_VAL_PREV = SCROLL_VAL
 
+            # TOUCH EVENT
+
             else:
-                X = (data[8] << 16) + (data[3] << 8) + data[2]
-                Y = (data[5] << 8) + data[4]
-                PRESS = (data[7] << 8) + data[6]
+                # bitwise operations: n<<16 == n*65536 and n<<8 == n*256
+                X = (data[8]<<16) + (data[3]<<8) + data[2]
+                Y = (data[5]<<8) + data[4]
+                PRESS = (data[7]<<8) + data[6]
 
                 main.vpen.write(ecodes.EV_ABS, ecodes.ABS_X, X)
                 main.vpen.write(ecodes.EV_ABS, ecodes.ABS_Y, Y)
@@ -464,6 +496,7 @@ def read_config():
         'show_uclogic_info')
     main.settings['enable_notifications'] = config.getboolean('config',
         'enable_notifications')
+    main.settings['debug_mode'] = config.getboolean('config', 'debug_mode')
     main.settings['start_menu'] = config.get('config', 'start_menu').strip('[]')
 
     for section in config.sections():
