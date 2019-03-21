@@ -2,14 +2,15 @@
 
 ## Features
 
- * Supports multiple models, including Kamvas
- * Compatible with multi-monitor setups
+ * Supports multiple tablet models
  * Precise cursor positioning
  * Full pressure sensitivity
  * Both stylus buttons
+ * Compatible with multi-monitor setups
  * Customizable buttons and scrollbar shortcuts
  * Multiple sets of shortcuts
- * Easy configuration file
+ * Optional desktop notifications
+ * Versatile configuration file
 
 
 ## Usage
@@ -26,13 +27,17 @@
 
  * [python](https://www.python.org/) version 3.5 or greater
  * [uclogic-tools](https://github.com/DIGImend/uclogic-tools) ([read why][2])
- 
-    Install on Ubuntu
+
     ```
-    $ sudo apt install make automake gcc pkg-config libusb-1.0-0-dev
+    # Installation from source: install dependencies, clone, compile & install
+
+    $ sudo apt install make automake gcc pkg-config libusb-1.0-0-dev  # For ubuntu
+
+    git clone https://github.com/DIGImend/uclogic-tools
+    cd uclogic-tools
+    ./bootstrap && ./configure --prefix=/usr/local/ && make
+    sudo make install
     ```
-    
-    For Arch, check the install from source instructions: https://github.com/DIGImend/uclogic-tools#installation
 
  * [xinput](https://wiki.archlinux.org/index.php/Xinput)
  * [evdev](https://wiki.gentoo.org/wiki/Evdev)
