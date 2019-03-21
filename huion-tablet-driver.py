@@ -137,7 +137,11 @@ def setup_driver():
             main.settings['scrollbar']))
     else:
         print("\tScrollbar             disabled ({})".format(
-            main.settings['scrollbar']))
+           main.settings['scrollbar']))
+
+    print("\t\t Reversed: ({})".format(
+        main.settings['scrollbar_reverse']))
+
 
     if main.settings['enable_notifications']:
         print("\tDesktop notifications ENABLED")
@@ -148,6 +152,12 @@ def setup_driver():
         print("\tMulti Monitor Setup   ENABLED")
     else:
         print("\tMulti Monitor Setup   disabled")
+
+    if main.settings['enable_xrandr']:
+        print("\tCalling xrandr        ENABLED")
+    else:
+        print("\tCalling xrandr        disabled")
+
 
 
 # -----------------------------------------------------------------------------
