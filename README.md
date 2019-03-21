@@ -35,7 +35,7 @@
 
     git clone https://github.com/DIGImend/uclogic-tools
     cd uclogic-tools
-    ./bootstrap && ./configure --prefix=/usr/local/ && make
+    autoreconf -i -f && ./configure --prefix=/usr/local/ && make
     sudo make install
     ```
 
