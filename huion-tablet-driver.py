@@ -259,10 +259,15 @@ def main_loop():
 
             is_hover     = data[1] == 128
             is_touch     = data[1] == 129
-            is_pen_btn1  = data[1] == 130
-            is_pen_btn2  = data[1] == 132
-            is_scrollbar = data[1] == 240
             is_buttonbar = data[1] == 224
+            is_scrollbar = data[1] == 240
+            if main.settings['pen_buttons_reverse']:
+                is_pen_btn1  = data[1] == 132 # right
+                is_pen_btn2  = data[1] == 130 # middle
+            else:
+                is_pen_btn1  = data[1] == 130 # middle
+                is_pen_btn2  = data[1] == 132 # right
+
 
             if main.settings['debug_mode']:
                 print("data[{}] = {}".format(len(data), data))
@@ -446,6 +451,8 @@ def read_config():
 
     main.settings['enable_buttons'] = config.getboolean('config',
         'enable_buttons')
+    main.settings['pen_buttons_reverse'] = config.getboolean('config',
+        'pen_buttons_reverse')
     main.settings['buttons_notifications'] = config.getboolean('config',
         'buttons_notifications')
     main.settings['enable_scrollbar'] = config.getboolean('config',
