@@ -26,17 +26,13 @@
 
  * [python](https://www.python.org/) version 3.5 or greater
  * [uclogic-tools](https://github.com/DIGImend/uclogic-tools) ([read why][2])
-
+ 
+    Install on Ubuntu
     ```
-    # Installation Steps:
-
-    # sudo apt install make automake gcc pkg-config libusb-1.0-0-dev  # For ubuntu
-
-    git clone https://github.com/DIGImend/uclogic-tools
-    cd uclogic-tools
-    ./bootstrap && ./configure --prefix=/usr/local/ && make
-    sudo make install
+    $ sudo apt install make automake gcc pkg-config libusb-1.0-0-dev
     ```
+    
+    For Arch, check the install from source instructions: https://github.com/DIGImend/uclogic-tools
 
  * [xinput](https://wiki.archlinux.org/index.php/Xinput)
  * [evdev](https://wiki.gentoo.org/wiki/Evdev)
