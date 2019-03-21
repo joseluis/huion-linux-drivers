@@ -326,11 +326,14 @@ def keypress(title, sequence):
     """
     """
     if main.settings['enable_notifications']:
-        cmd='notify-send "{}" "{}"'.format(title, sequence)
-        try:
-            sp.run(cmd, shell=True, check=True)
-        except sp.CalledProcessError as e:
-            run_error(e, cmd)
+        if (title == 'scrollbar' and main.settings['scrollbar_notifications']) \
+            or (title != 'scrollbar' and main.settings['buttons_notifications']):
+
+            cmd='notify-send "{}" "{}"'.format(title, sequence)
+            try:
+                sp.run(cmd, shell=True, check=True)
+            except sp.CalledProcessError as e:
+                run_error(e, cmd)
 
     cmd="xdotool {}".format(sequence)
     try:
@@ -411,10 +414,14 @@ def read_config():
 
     main.settings['enable_buttons'] = config.getboolean('config',
         'enable_buttons')
+    main.settings['buttons_notifications'] = config.getboolean('config',
+        'buttons_notifications')
     main.settings['enable_scrollbar'] = config.getboolean('config',
         'enable_scrollbar')
     main.settings['scrollbar_reverse'] = config.getboolean('config',
         'scrollbar_reverse')
+    main.settings['scrollbar_notifications'] = config.getboolean('config',
+        'scrollbar_notifications')
 
 
     # multi-monitor setup
