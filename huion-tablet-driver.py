@@ -256,11 +256,17 @@ def main_loop():
                     if SCROLL_VAL_PREV == 0:
                         SCROLL_VAL_PREV=SCROLL_VAL
 
-                    if SCROLL_VAL > SCROLL_VAL_PREV:
-                        do_shortcut("scrollbar", MENU[main.current_menu]['scroll_up'])
+                    if main.settings['scrollbar_reverse']:
+                        if SCROLL_VAL > SCROLL_VAL_PREV:
+                            do_shortcut("scrollbar", MENU[main.current_menu]['scroll_up'])
+                        elif SCROLL_VAL < SCROLL_VAL_PREV:
+                            do_shortcut("scrollbar", MENU[main.current_menu]['scroll_down'])
+                    else:
+                        if SCROLL_VAL < SCROLL_VAL_PREV:
+                            do_shortcut("scrollbar", MENU[main.current_menu]['scroll_up'])
+                        elif SCROLL_VAL > SCROLL_VAL_PREV:
+                            do_shortcut("scrollbar", MENU[main.current_menu]['scroll_down'])
 
-                    elif SCROLL_VAL < SCROLL_VAL_PREV:
-                        do_shortcut("scrollbar", MENU[main.current_menu]['scroll_down'])
 
                 SCROLL_VAL_PREV = SCROLL_VAL
 
@@ -397,6 +403,9 @@ def read_config():
         'enable_buttons')
     main.settings['enable_scrollbar'] = config.getboolean('config',
         'enable_scrollbar')
+    main.settings['scrollbar_reverse'] = config.getboolean('config',
+        'scrollbar_reverse')
+
 
     # multi-monitor setup
 
