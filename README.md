@@ -32,7 +32,7 @@
     $ sudo apt install make automake gcc pkg-config libusb-1.0-0-dev
     ```
     
-    For Arch, check the install from source instructions: https://github.com/DIGImend/uclogic-tools
+    For Arch, check the install from source instructions: https://github.com/DIGImend/uclogic-tools#installation
 
  * [xinput](https://wiki.archlinux.org/index.php/Xinput)
  * [evdev](https://wiki.gentoo.org/wiki/Evdev)
@@ -127,11 +127,4 @@ b9 = key 6             # turn right (krita)
 
 [See an example with multiple menus in the wiki](https://github.com/joseluis/huion-linux-drivers/wiki/Buttons-Shortcuts#12-example-with-multiple-menus)
 
-
-## Supporting More Models
-
-Current supported models are: `H950P`, `GT-191`, `GT-220 v2` and `GT-221 PRO`.
-
-If you have access to a different Huion model, please open a new issue,
-pasting the console output after executing the driver.
 
