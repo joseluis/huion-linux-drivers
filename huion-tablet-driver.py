@@ -132,17 +132,18 @@ def setup_driver():
         print("\tButtons               disabled ({})".format(
             main.settings['buttons']))
 
-    if main.settings['enable_scrollbar'] and main.settings['scrollbar'] > 0 :
+    # scrollbar
+    if main.settings['enable_scrollbar']:
         print("\tScrollbar             ENABLED ({})".format(
             main.settings['scrollbar']))
+
+        print("\t\t Reversed: ({})".format(
+            main.settings['scrollbar_reverse']))
     else:
         print("\tScrollbar             disabled ({})".format(
            main.settings['scrollbar']))
 
-    print("\t\t Reversed: ({})".format(
-        main.settings['scrollbar_reverse']))
-
-
+    # notifications
     if main.settings['enable_notifications']:
         print("\tDesktop notifications ENABLED")
     else:
@@ -237,7 +238,8 @@ def main_loop():
 
     print('\nHuion Kamvas driver should now be running\n')
 
-    switch_menu(main.current_menu)
+    if main.current_menu:
+        switch_menu(main.current_menu)
 
     SCROLL_VAL_PREV=0
 
@@ -290,7 +292,8 @@ def main_loop():
                 if BUTTON_VAL > 0: # 0 means release
                     # convert to the exponent (0, 1, 2, 3, 4...)
                     BUTTON_VAL = int(math.log(BUTTON_VAL, 2))
-                    do_shortcut("button", MENU[main.current_menu][BUTTON_VAL])
+                    if main.current_menu:
+                        do_shortcut("button", MENU[main.current_menu][BUTTON_VAL])
 
             # SCROLLBAR EVENT
 
@@ -427,48 +430,81 @@ def read_config():
 
     config.read('config.ini') # TODO manage errors
 
+
     # tablet info
 
-    current_tablet = config.get('config',
-        'current_tablet').split("#",1)[0].strip('[]').strip()
+    current_tablet = config.get('config', 'current_tablet').split("#",1)[0].strip('[]').strip()
     main.settings['model_name'] = config.get(current_tablet, 'model_name')
-    main.settings['pen_max_x'] = ast.literal_eval(config.get(current_tablet,
-        'pen_max_x'))
-    main.settings['pen_max_y'] = ast.literal_eval(config.get(current_tablet,
-        'pen_max_y'))
-    main.settings['pen_max_z'] = ast.literal_eval(config.get(current_tablet,
-        'pen_max_z'))
-    main.settings['resolution'] = ast.literal_eval(config.get(current_tablet,
-        'resolution'))
-    main.settings['buttons'] = ast.literal_eval(config.get(current_tablet,
-        'buttons'))
-    main.settings['scrollbar'] = ast.literal_eval(config.get(current_tablet,
-        'scrollbar'))
-    main.settings['screen_width'] = ast.literal_eval(config.get(current_tablet,
-        'screen_width'))
-    main.settings['screen_height'] = ast.literal_eval(config.get(current_tablet,
-        'screen_height'))
+    main.settings['pen_max_x'] = ast.literal_eval(config.get(current_tablet, 'pen_max_x'))
+    main.settings['pen_max_y'] = ast.literal_eval(config.get(current_tablet, 'pen_max_y'))
+    main.settings['pen_max_z'] = ast.literal_eval(config.get(current_tablet, 'pen_max_z'))
+    main.settings['resolution'] = ast.literal_eval(config.get(current_tablet, 'resolution'))
+    try:
+        main.settings['buttons'] = ast.literal_eval(config.get(current_tablet, 'buttons'))
+    except:
+        main.settings['buttons'] = 0
+    try:
+        main.settings['scrollbar'] = ast.literal_eval(config.get(current_tablet, 'scrollbar'))
+    except:
+        main.settings['scrollbar'] = 0
+    main.settings['screen_width'] = ast.literal_eval(config.get(current_tablet, 'screen_width'))
+    main.settings['screen_height'] = ast.literal_eval(config.get(current_tablet, 'screen_height'))
     main.settings['screen'] = config.getboolean(current_tablet, 'screen')
 
-    main.settings['enable_buttons'] = config.getboolean('config',
-        'enable_buttons')
-    main.settings['pen_buttons_reverse'] = config.getboolean('config',
-        'pen_buttons_reverse')
-    main.settings['buttons_notifications'] = config.getboolean('config',
-        'buttons_notifications')
-    main.settings['enable_scrollbar'] = config.getboolean('config',
-        'enable_scrollbar')
-    main.settings['scrollbar_reverse'] = config.getboolean('config',
-        'scrollbar_reverse')
-    main.settings['scrollbar_notifications'] = config.getboolean('config',
-        'scrollbar_notifications')
+
+    # features
+
+    # tablet buttons
+    try:
+        main.settings['enable_buttons'] = config.getboolean('config', 'enable_buttons')
+        if main.settings['buttons'] == 0:
+            main.settings['enable_buttons'] = False
+    except:
+        main.settings['enable_buttons'] = False
+
+    # pen buttons
+    try:
+        main.settings['pen_buttons_reverse'] = config.getboolean('config', 'pen_buttons_reverse')
+    except:
+        main.settings['pen_buttons_reverse'] = False
+
+    try:
+        main.settings['buttons_notifications'] = config.getboolean('config', 'buttons_notifications')
+    except:
+        main.settings['buttons_notifications'] = True
+
+    # scrollbar
+    try:
+        main.settings['enable_scrollbar'] = config.getboolean('config', 'enable_scrollbar')
+        if main.settings['scrollbar'] == 0:
+            main.settings['enable_scrollbar'] = False
+    except:
+        main.settings['enable_scrollbar'] = False
+
+    # scrollbar reverse
+    try:
+        main.settings['scrollbar_reverse'] = config.getboolean('config', 'scrollbar_reverse')
+    except:
+        main.settings['scrollbar_reverse'] = False
+
+    # scrollbar notifications
+    try:
+        main.settings['scrollbar_notifications'] = config.getboolean('config', 'scrollbar_notifications')
+    except:
+        main.settings['scrollbar_notifications'] = False
 
 
     # multi-monitor setup
 
-    main.settings['enable_multi_monitor'] = config.getboolean('config',
-        'enable_multi_monitor')
-    main.settings['enable_xrandr'] = config.getboolean('config', 'enable_xrandr')
+    try:
+        main.settings['enable_multi_monitor'] = config.getboolean('config', 'enable_multi_monitor')
+    except:
+        main.settings['enable_multi_monitor'] = False
+
+    try:
+        main.settings['enable_xrandr'] = config.getboolean('config', 'enable_xrandr')
+    except:
+        main.settings['enable_xrandr'] = False
 
     current_monitor_setup = config.get('config',
         'current_monitor_setup').split("#",1)[0].strip('[]').strip()
@@ -486,26 +522,40 @@ def read_config():
 
     # tablet calibration
 
-    main.settings['enable_calibration'] = config.getboolean('config',
-        'enable_calibration')
-    main.settings['calibrate_min_x'] = ast.literal_eval(config.get('config',
-        'calibrate_min_x').split("#",1)[0].strip())
-    main.settings['calibrate_max_x'] = ast.literal_eval(config.get('config',
-        'calibrate_max_x').split("#",1)[0].strip())
-    main.settings['calibrate_min_y'] = ast.literal_eval(config.get('config',
-        'calibrate_min_y').split("#",1)[0].strip())
-    main.settings['calibrate_max_y'] = config.get('config',
-        'calibrate_max_y').split("#",1)[0].strip()
+    try:
+        main.settings['enable_calibration'] = config.getboolean('config', 'enable_calibration')
+        main.settings['calibrate_min_x'] = ast.literal_eval(config.get('config',
+            'calibrate_min_x').split("#",1)[0].strip())
+        main.settings['calibrate_max_x'] = ast.literal_eval(config.get('config',
+            'calibrate_max_x').split("#",1)[0].strip())
+        main.settings['calibrate_min_y'] = ast.literal_eval(config.get('config',
+            'calibrate_min_y').split("#",1)[0].strip())
+        main.settings['calibrate_max_y'] = config.get('config',
+            'calibrate_max_y').split("#",1)[0].strip()
+    except:
+        main.settings['enable_calibration'] = False
 
     # miscellaneus
 
     main.settings['uclogic_bins'] = config.get('config', 'uclogic_bins')
-    main.settings['show_uclogic_info'] = config.getboolean('config',
-        'show_uclogic_info')
-    main.settings['enable_notifications'] = config.getboolean('config',
-        'enable_notifications')
-    main.settings['debug_mode'] = config.getboolean('config', 'debug_mode')
-    main.settings['start_menu'] = config.get('config', 'start_menu').strip('[]')
+    try:
+        main.settings['show_uclogic_info'] = config.getboolean('config', 'show_uclogic_info')
+    except:
+        main.settings['show_uclogic_info'] = False
+    try:
+        main.settings['enable_notifications'] = config.getboolean('config', 'enable_notifications')
+    except:
+        main.settings['enable_notifications'] = True
+    try:
+        main.settings['debug_mode'] = config.getboolean('config', 'debug_mode')
+    except:
+        main.settings['debug_mode'] = False
+
+    try:
+        main.settings['start_menu'] = config.get('config', 'start_menu').strip('[]')
+    except:
+        main.settings['start_menu'] = ''
+
 
     for section in config.sections():
         if section.startswith('menu_'):
