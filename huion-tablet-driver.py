@@ -176,6 +176,15 @@ def setup_driver():
         print("\tScreen                    disabled")
 
 
+    if main.settings['debug_mode'] or main.settings['tablet_debug_only']:
+        print("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        print("\t\t< DEBUG MODE ENABLED >")
+        if main.settings['tablet_debug_only']:
+            print("Debug mode only. Tablet input wont be relied to the OS.")
+            print("Tablet input events will only be echoed to the console.")
+        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n")
+
+
 
 # -----------------------------------------------------------------------------
 def multi_monitor():
@@ -287,16 +296,20 @@ def main_loop():
                 is_pen_btn2  = data[1] == 132 # right
 
 
-            if main.settings['debug_mode']:
+            # DEBUG
+
+            if main.settings['debug_mode'] or main.settings['tablet_debug_only']:
                 if not (is_hover):
                     print("data[{}] = {}".format(len(data), data))
-                    interpreted_data = {
-                        "TYPE" : data[1],
-                        "X": "[8]<<16+[3]<<8+[2]={}".format((data[8]<<16)+(data[3]<<8)+data[2]),
-                        "Y": "[5]<<8+[4]={}".format((data[5]<<8)+data[4]),
-                        "PRESS": "[7]<<8+[6]={}".format((data[7]<<8)+data[6])
-                    }
-                    print(interpreted_data)
+                    # interpreted_data = {
+                    #     "TYPE" : data[1],
+                    #     "X": "[8]<<16+[3]<<8+[2]={}".format((data[8]<<16)+(data[3]<<8)+data[2]),
+                    #     "Y": "[5]<<8+[4]={}".format((data[5]<<8)+data[4]),
+                    #     "PRESS": "[7]<<8+[6]={}".format((data[7]<<8)+data[6])
+                    # }
+                    # print(interpreted_data)
+            if main.settings['tablet_debug_only']:
+                continue
 
 
             # BUTTON EVENT
@@ -330,7 +343,6 @@ def main_loop():
                             do_shortcut("scrollbar", MENU[main.current_menu]['scroll_up'])
                         elif SCROLL_VAL > SCROLL_VAL_PREV:
                             do_shortcut("scrollbar", MENU[main.current_menu]['scroll_down'])
-
 
                 SCROLL_VAL_PREV = SCROLL_VAL
 
@@ -492,6 +504,14 @@ def read_config():
             main.settings['screen_height'] = 1080
     except:
         main.settings['screen'] = False
+
+    # debug tablet
+    try:
+        main.settings['tablet_debug_only'] = config.getboolean(current_tablet, 'debug_only')
+    except:
+        main.settings['tablet_debug_only'] = False
+
+    # features
 
     # tablet buttons
     try:
