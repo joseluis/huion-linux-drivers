@@ -123,41 +123,57 @@ def setup_driver():
 
     # INFO ---------------------
 
-    print("\tTablet model name     {}".format(main.settings['model_name']))
+    print("\tTablet model name         {}".format(main.settings['model_name']))
 
     if main.settings['enable_buttons'] and main.settings['buttons'] > 0 :
-        print("\tButtons               ENABLED ({})".format(
+        print("\tButtons                   ENABLED ({})".format(
             main.settings['buttons']))
     else:
-        print("\tButtons               disabled ({})".format(
+        print("\tButtons                   disabled ({})".format(
             main.settings['buttons']))
 
     # scrollbar
     if main.settings['enable_scrollbar']:
-        print("\tScrollbar             ENABLED ({})".format(
+        print("\tScrollbar                 ENABLED ({})".format(
             main.settings['scrollbar']))
 
-        print("\t\t Reversed: ({})".format(
+        print("\t\t Reversed:     ({})".format(
             main.settings['scrollbar_reverse']))
     else:
-        print("\tScrollbar             disabled ({})".format(
+        print("\tScrollbar                 disabled ({})".format(
            main.settings['scrollbar']))
 
     # notifications
     if main.settings['enable_notifications']:
-        print("\tDesktop notifications ENABLED")
+        print("\tNotifications:            ENABLED")
+        if main.settings['buttons_notifications']:
+            print("\t\tfor buttons       ENABLED")
+        else:
+            print("\t\tfor buttons       disabled")
+        if main.settings['scrollbar_notifications']:
+            print("\t\tfor scrollbar     ENABLED")
+        else:
+            print("\t\tfor scrollbar     disabled")
     else:
-        print("\tDesktop notifications disabled")
+        print("\tNotifications             disabled")
 
-    if main.settings['enable_multi_monitor']:
-        print("\tMulti Monitor Setup   ENABLED")
-    else:
-        print("\tMulti Monitor Setup   disabled")
+    if main.settings['screen']:
+        print("\tScreen                    Enabled ({}x{})".format(
+            main.settings['screen_width'], main.settings['screen_height']))
+        print("\tCurrent Monitor Setup     {}".format(
+            main.settings['monitor_setup']))
+        if main.settings['enable_multi_monitor']:
+            print("\tMulti Monitor Setup       ENABLED")
+        else:
+            print("\tMulti Monitor Setup       disabled")
 
-    if main.settings['enable_xrandr']:
-        print("\tCalling xrandr        ENABLED")
+        if main.settings['enable_xrandr']:
+            print("\tCalling xrandr            ENABLED")
+        else:
+            print("\tCalling xrandr            disabled")
+
     else:
-        print("\tCalling xrandr        disabled")
+        print("\tScreen                    disabled")
 
 
 
@@ -169,11 +185,11 @@ def multi_monitor():
     if not main.settings['enable_multi_monitor']:
         return
 
-    sys.stdout.write("Setting up multiple monitors. . . ")
-
     if not main.settings['screen']:
-        print("No tablet screen!")
+        print("Warning: Tablet must have a configured screen to use a multi-monitor setup")
         return
+
+    sys.stdout.write("Setting up multiple monitors. . . ")
 
 
     if main.settings['enable_xrandr']:
@@ -185,10 +201,10 @@ def multi_monitor():
         except sp.CalledProcessError as e:
             run_error(e, cmd)
 
-    C0=(main.settings["screen_width"] / main.settings["total_screen_width"])
-    C1=(main.settings["tablet_offset_x"] / main.settings["total_screen_width"])
-    C2=(main.settings["screen_height"] / main.settings["total_screen_height"])
-    C3=(main.settings["tablet_offset_y"] / main.settings["total_screen_height"])
+    C0=(main.settings['screen_width'] / main.settings['total_screen_width'])
+    C1=(main.settings['tablet_offset_x'] / main.settings['total_screen_width'])
+    C2=(main.settings['screen_height'] / main.settings['total_screen_height'])
+    C3=(main.settings['tablet_offset_y'] / main.settings['total_screen_height'])
 
     cmd='xinput set-prop "{}" --type=float "{}" {} 0 {} 0 {} {} 0 0 1'.format(
         main.settings['pen_device_name'], "Coordinate Transformation Matrix",
@@ -201,8 +217,8 @@ def multi_monitor():
     print('Done!')
 
     print('\tMapped tablet area to "{}x{} + {}x{}"'.format(
-        main.settings["screen_width"], main.settings["screen_height"],
-        main.settings["tablet_offset_x"], main.settings["tablet_offset_y"]))
+        main.settings['screen_width'], main.settings['screen_height'],
+        main.settings['tablet_offset_x'], main.settings['tablet_offset_y']))
 
 # -----------------------------------------------------------------------------
 def calibrate():
@@ -434,25 +450,48 @@ def read_config():
     # tablet info
 
     current_tablet = config.get('config', 'current_tablet').split("#",1)[0].strip('[]').strip()
-    main.settings['model_name'] = config.get(current_tablet, 'model_name')
-    main.settings['pen_max_x'] = ast.literal_eval(config.get(current_tablet, 'pen_max_x'))
-    main.settings['pen_max_y'] = ast.literal_eval(config.get(current_tablet, 'pen_max_y'))
-    main.settings['pen_max_z'] = ast.literal_eval(config.get(current_tablet, 'pen_max_z'))
-    main.settings['resolution'] = ast.literal_eval(config.get(current_tablet, 'resolution'))
+
+    try:
+        main.settings['model_name'] = config.get(current_tablet, 'model_name')
+    except:
+        main.settings['model_name'] = "Unnamed Tablet"
+
+    try:
+        main.settings['pen_max_x'] = ast.literal_eval(config.get(current_tablet, 'pen_max_x'))
+    except:
+        main.settings['pen_max_x'] = 0
+    try:
+        main.settings['pen_max_y'] = ast.literal_eval(config.get(current_tablet, 'pen_max_y'))
+    except:
+        main.settings['pen_max_y'] = 0
+    try:
+        main.settings['pen_max_z'] = ast.literal_eval(config.get(current_tablet, 'pen_max_z'))
+    except:
+        main.settings['pen_max_z'] = 0
+    try:
+        main.settings['resolution'] = ast.literal_eval(config.get(current_tablet, 'resolution'))
+    except:
+        main.settings['resolution'] = 0
+    # number of buttons in tablet
     try:
         main.settings['buttons'] = ast.literal_eval(config.get(current_tablet, 'buttons'))
     except:
         main.settings['buttons'] = 0
+    # number of scrollbars
     try:
         main.settings['scrollbar'] = ast.literal_eval(config.get(current_tablet, 'scrollbar'))
     except:
         main.settings['scrollbar'] = 0
-    main.settings['screen_width'] = ast.literal_eval(config.get(current_tablet, 'screen_width'))
-    main.settings['screen_height'] = ast.literal_eval(config.get(current_tablet, 'screen_height'))
-    main.settings['screen'] = config.getboolean(current_tablet, 'screen')
-
-
-    # features
+    try:
+        main.settings['screen'] = config.getboolean(current_tablet, 'screen')
+        try:
+            main.settings['screen_width'] = ast.literal_eval(config.get(current_tablet, 'screen_width'))
+            main.settings['screen_height'] = ast.literal_eval(config.get(current_tablet, 'screen_height'))
+        except:
+            main.settings['screen_width'] = 1920
+            main.settings['screen_height'] = 1080
+    except:
+        main.settings['screen'] = False
 
     # tablet buttons
     try:
@@ -506,19 +545,22 @@ def read_config():
     except:
         main.settings['enable_xrandr'] = False
 
-    current_monitor_setup = config.get('config',
-        'current_monitor_setup').split("#",1)[0].strip('[]').strip()
-    main.settings['total_screen_width'] = ast.literal_eval(config.get(current_monitor_setup,
-        'total_screen_width').split("#",1)[0].strip())
-    main.settings['total_screen_height'] = ast.literal_eval(config.get(current_monitor_setup,
-        'total_screen_height').split("#",1)[0].strip())
-    main.settings['tablet_offset_x'] = ast.literal_eval(config.get(current_monitor_setup,
-        'tablet_offset_x').split("#",1)[0].strip())
-    main.settings['tablet_offset_y'] = ast.literal_eval(config.get(current_monitor_setup,
-        'tablet_offset_y').split("#",1)[0].strip())
+    try:
+        main.settings['monitor_setup'] = config.get('config', 'current_monitor_setup')
+        current_monitor_setup =  main.settings['monitor_setup'].split("#",1)[0].strip('[]').strip()
+        main.settings['total_screen_width'] = ast.literal_eval(config.get(current_monitor_setup,
+            'total_screen_width').split("#",1)[0].strip())
+        main.settings['total_screen_height'] = ast.literal_eval(config.get(current_monitor_setup,
+            'total_screen_height').split("#",1)[0].strip())
+        main.settings['tablet_offset_x'] = ast.literal_eval(config.get(current_monitor_setup,
+            'tablet_offset_x').split("#",1)[0].strip())
+        main.settings['tablet_offset_y'] = ast.literal_eval(config.get(current_monitor_setup,
+            'tablet_offset_y').split("#",1)[0].strip())
 
-    main.settings['xrandr_args'] = config.get(current_monitor_setup,
-        'xrandr_args').split("#",1)[0].strip()
+        main.settings['xrandr_args'] = config.get(current_monitor_setup,
+            'xrandr_args').split("#",1)[0].strip()
+    except:
+        current_monitor_setup = "none"
 
     # tablet calibration
 
