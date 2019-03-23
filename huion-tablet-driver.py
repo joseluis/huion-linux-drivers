@@ -2,6 +2,7 @@
 
 import usb.core, usb.util
 import sys
+import os.path
 from evdev import UInput, ecodes, AbsInfo
 import subprocess as sp
 import math, ast
@@ -454,9 +455,12 @@ def read_config():
 
     sys.stdout.write("Reading configuration. . . ")
 
-    config = ConfigParser(interpolation=ExtendedInterpolation())
-
-    config.read('config.ini') # TODO manage errors
+    if os.path.exists('config.ini'):
+        config = ConfigParser(interpolation=ExtendedInterpolation())
+        config.read('config.ini')
+    else:
+        print("ERROR: Couldn't locate config.ini")
+        sys.exit(2)
 
 
     # tablet info
