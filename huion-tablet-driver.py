@@ -182,9 +182,11 @@ def setup_driver():
         if main.settings['tablet_debug_only']:
             print("\t[Debug mode only]. Input from tablet wont be used, except")
             print("\tfor printing out the information to the console.")
+            print("\n\tINSTRUCTIONS: briefly touch the four corners of the screen:")
+            print("\t\t1) Left up 2) Right up 3) Left Down 4) Right Down")
         else:
             print("\t[Debug mode]. Input from tablet will also be printed out.")
-        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n")
+        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 
 
 
@@ -193,11 +195,7 @@ def multi_monitor():
     """
     """
 
-    if not main.settings['enable_multi_monitor']:
-        return
-
-    if not main.settings['screen']:
-        print("Warning: Tablet must have a configured screen to use a multi-monitor setup")
+    if not (main.settings['enable_multi_monitor'] and main.settings['screen']):
         return
 
     sys.stdout.write("Setting up multiple monitors. . . ")
@@ -269,7 +267,11 @@ def main_loop():
         switch_menu(main.current_menu)
 
     SCROLL_VAL_PREV=0
-    HOVER_PREV = False
+
+    if main.settings['debug_mode'] or main.settings['tablet_debug_only']:
+        HOVER_PREV = False
+        HOVER_COUNT = 0
+        print("Please slowly and briefly touch the LEFT UP corner of your tablet:");
 
     while True:
         try:
@@ -306,6 +308,13 @@ def main_loop():
                     if not HOVER_PREV:
                         print("...")
                         HOVER_PREV = True
+                        if HOVER_COUNT == 1:
+                            print("Now touch the RIGHT UP corner of your tablet:");
+                        elif HOVER_COUNT == 2:
+                            print("Now touch the LEFT UP corner of your tablet:");
+                        elif HOVER_COUNT == 3:
+                            print("Now touch the RIGHT DOWN corner of your tablet:");
+                        HOVER_COUNT += 1
                 else:
                     HOVER_PREV = False
                     print("data[{}] = {}".format(len(data), data))
