@@ -176,14 +176,15 @@ def setup_driver():
     else:
         print("\tScreen                    disabled")
 
-
     if main.settings['debug_mode'] or main.settings['tablet_debug_only']:
-        print("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-        print("\t\t< DEBUG MODE ENABLED >")
+        print("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        print("\t\t\t< DEBUG MODE ENABLED >")
         if main.settings['tablet_debug_only']:
-            print("Debug mode only. Tablet input wont be relied to the OS.")
-            print("Tablet input events will only be echoed to the console.")
-        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n")
+            print("\t[Debug mode only]. Input from tablet wont be used, except")
+            print("\tfor printing out the information to the console.")
+        else:
+            print("\t[Debug mode]. Input from tablet will also be printed out.")
+        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n")
 
 
 
@@ -268,6 +269,7 @@ def main_loop():
         switch_menu(main.current_menu)
 
     SCROLL_VAL_PREV=0
+    HOVER_PREV = False
 
     while True:
         try:
@@ -300,7 +302,12 @@ def main_loop():
             # DEBUG
 
             if main.settings['debug_mode'] or main.settings['tablet_debug_only']:
-                if not (is_hover):
+                if is_hover:
+                    if not HOVER_PREV:
+                        print("...")
+                        HOVER_PREV = True
+                else:
+                    HOVER_PREV = False
                     print("data[{}] = {}".format(len(data), data))
                     # interpreted_data = {
                     #     "TYPE" : data[1],
