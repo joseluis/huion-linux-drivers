@@ -138,7 +138,8 @@ def setup_driver():
         print("\tScrollbar                 ENABLED ({})".format(
             main.settings['scrollbar']))
 
-        print("\t\t Reversed:     ({})".format(
+        if main.settings['scrollbar_reverse']:
+            print("\t\tReversed:         {}".format(
             main.settings['scrollbar_reverse']))
     else:
         print("\tScrollbar                 disabled ({})".format(
@@ -176,7 +177,7 @@ def setup_driver():
     else:
         print("\tScreen                    disabled")
 
-    if main.settings['debug_mode'] or main.settings['tablet_debug_only']:
+    if main.settings['debug_mode']:
         print("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
         print("\t\t\t< DEBUG MODE ENABLED >")
         if main.settings['tablet_debug_only']:
@@ -198,13 +199,13 @@ def multi_monitor():
     if not (main.settings['enable_multi_monitor'] and main.settings['screen']):
         return
 
-    sys.stdout.write("Setting up multiple monitors. . . ")
-
+    print("\nSetting up multiple monitors. . . ")
 
     if main.settings['enable_xrandr']:
+        print("Running xrandr. . . ")
         cmd='xrandr {}'.format(main.settings['xrandr_args'])
         if main.settings['debug_mode']:
-            print(cmd)
+            print('» {}'.format(cmd))
         try:
             sp.run(cmd, shell=True, check=True)
         except sp.CalledProcessError as e:
@@ -219,13 +220,14 @@ def multi_monitor():
         main.settings['pen_device_name'], "Coordinate Transformation Matrix",
         C0, C1, C2, C3)
     try:
+        print("Running xinput. . . ")
+        if main.settings['debug_mode']:
+            print('» {}'.format(cmd))
         sp.run(cmd, shell=True, check=True)
     except sp.CalledProcessError as e:
         run_error(e, cmd)
 
-    print('Done!')
-
-    print('\tMapped tablet area to "{}x{} + {}x{}"'.format(
+    print('Mapped tablet area to "{}x{} + {}x{}"'.format(
         main.settings['screen_width'], main.settings['screen_height'],
         main.settings['tablet_offset_x'], main.settings['tablet_offset_y']))
 
@@ -268,10 +270,11 @@ def main_loop():
 
     SCROLL_VAL_PREV=0
 
-    if main.settings['debug_mode'] or main.settings['tablet_debug_only']:
+    if main.settings['debug_mode']:
         HOVER_PREV = False
         HOVER_COUNT = 0
-        print("Please slowly and briefly touch the LEFT UP corner of your tablet:");
+        if main.settings['tablet_debug_only']:
+            print("Please slowly and briefly touch the LEFT UP corner of your tablet:");
 
     while True:
         try:
@@ -303,18 +306,19 @@ def main_loop():
 
             # DEBUG
 
-            if main.settings['debug_mode'] or main.settings['tablet_debug_only']:
+            if main.settings['debug_mode']:
                 if is_hover:
                     if not HOVER_PREV:
                         print("...")
                         HOVER_PREV = True
-                        if HOVER_COUNT == 1:
-                            print("Now touch the RIGHT UP corner of your tablet:");
-                        elif HOVER_COUNT == 2:
-                            print("Now touch the LEFT UP corner of your tablet:");
-                        elif HOVER_COUNT == 3:
-                            print("Now touch the RIGHT DOWN corner of your tablet:");
-                        HOVER_COUNT += 1
+                        if main.settings['tablet_debug_only']:
+                            if HOVER_COUNT == 1:
+                                print("Now touch the RIGHT UP corner of your tablet:");
+                            elif HOVER_COUNT == 2:
+                                print("Now touch the LEFT UP corner of your tablet:");
+                            elif HOVER_COUNT == 3:
+                                print("Now touch the RIGHT DOWN corner of your tablet:");
+                            HOVER_COUNT += 1
                 else:
                     HOVER_PREV = False
                     print("data[{}] = {}".format(len(data), data))
@@ -325,6 +329,7 @@ def main_loop():
                     #     "PRESS": "[7]<<8+[6]={}".format((data[7]<<8)+data[6])
                     # }
                     # print(interpreted_data)
+
             if main.settings['tablet_debug_only']:
                 continue
 
@@ -525,11 +530,22 @@ def read_config():
     except:
         main.settings['screen'] = False
 
-    # debug tablet
+
+    # DEBUG mode
+    try:
+        main.settings['debug_mode'] = config.getboolean('config', 'debug_mode')
+    except:
+        main.settings['debug_mode'] = False
+
+    # [tablet_debug]
     try:
         main.settings['tablet_debug_only'] = config.getboolean(current_tablet, 'debug_only')
+        # also enables debug_mode
+        if main.settings['tablet_debug_only']:
+            main.settings['debug_mode'] = True
     except:
         main.settings['tablet_debug_only'] = False
+
 
     # features
 
@@ -628,10 +644,6 @@ def read_config():
         main.settings['enable_notifications'] = config.getboolean('config', 'enable_notifications')
     except:
         main.settings['enable_notifications'] = True
-    try:
-        main.settings['debug_mode'] = config.getboolean('config', 'debug_mode')
-    except:
-        main.settings['debug_mode'] = False
 
     try:
         main.settings['start_menu'] = config.get('config', 'start_menu').strip('[]')
