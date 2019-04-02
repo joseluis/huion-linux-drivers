@@ -315,7 +315,7 @@ def main_loop():
                             if HOVER_COUNT == 1:
                                 print("Now touch the RIGHT UP corner of your tablet:");
                             elif HOVER_COUNT == 2:
-                                print("Now touch the LEFT UP corner of your tablet:");
+                                print("Now touch the LEFT DOWN corner of your tablet:");
                             elif HOVER_COUNT == 3:
                                 print("Now touch the RIGHT DOWN corner of your tablet:");
                             HOVER_COUNT += 1
