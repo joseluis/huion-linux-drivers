@@ -4,7 +4,7 @@ import usb.core, usb.util
 import sys
 import os.path
 import platform
-from evdev import UInput, ecodes, AbsInfo
+from evdev import UInput, ecodes, AbsInfo, InputDevice, list_devices
 import subprocess as sp
 import math, ast
 from configparser import ConfigParser, ExtendedInterpolation
@@ -94,7 +94,7 @@ def prepare_driver():
 
     print("Done!")
 
-    if main.settings['show_uclogic_info']:
+    if main.settings['debug_mode']:
         print('-'*80+'\n'+ uc_str.stdout.decode("utf-8") +'-'*80)
 
 
@@ -181,19 +181,24 @@ def setup_driver():
     if main.settings['debug_mode']:
         print("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
         print("\t\t\t< DEBUG MODE ENABLED >")
-        if main.settings['tablet_debug_only']:
-            print("\t[Debug mode only]. Input from tablet wont be used, except")
-            print("\tfor printing out the information to the console.")
-            print("\n\tINSTRUCTIONS: briefly touch the four corners of the screen:")
-            print("\t\t1) Left up 2) Right up 3) Left Down 4) Right Down")
-        else:
-            print("\t[Debug mode]. Input from tablet will also be printed out.")
+        print("Enabled by default. You can disable it by setting debug_mode = false")
+        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 
         pf = platform.uname()
-        print("\n\tSYSTEM: {} {} ({} {})".format(
+        print("\nSYSTEM: {} {} ({} {})".format(
             pf.system, pf.release, pf.machine, pf.processor))
-        print("\t{}".format(pf.version))
-        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        print("{}".format(pf.version))
+
+        devices = [InputDevice(path) for path in list_devices()]
+        for device in devices:
+            if device.name == main.settings['pen_device_name']:
+                print("\nDEVICE: {} ({})".format(device.fn, device.phys))
+                print("{}".format(device.info))
+                print("\nTABLET CAPABILITIES:")
+                caps = device.capabilities()
+                for cap in caps:
+                    print("{}".format(repr(caps[cap])))
+                #print(dir(device))
 
 
 # -----------------------------------------------------------------------------
@@ -268,7 +273,20 @@ def main_loop():
     """
     """
 
-    print('\nHuion Kamvas driver should now be running\n')
+    print('\nHuion Kamvas driver should now be running. . .')
+
+    if main.settings['debug_mode']:
+        if main.settings['tablet_debug_only']:
+            print("\n(Input from the tablet will ONLY be used to print it out)")
+        else:
+            print("\n(Input from the tablet will be printed out)")
+
+        print("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        print("\tIn order to show useful calibration info then")
+        print("\tBriefly touch the four corners of the screen:")
+        print("\t1) Left up 2) Right up 3) Left Down 4) Right Down")
+        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+    print()
 
     if main.current_menu:
         switch_menu(main.current_menu)
@@ -654,10 +672,6 @@ def read_config():
     # miscellaneus
 
     main.settings['uclogic_bins'] = config.get('config', 'uclogic_bins')
-    try:
-        main.settings['show_uclogic_info'] = config.getboolean('config', 'show_uclogic_info')
-    except:
-        main.settings['show_uclogic_info'] = False
     try:
         main.settings['enable_notifications'] = config.getboolean('config', 'enable_notifications')
     except:
