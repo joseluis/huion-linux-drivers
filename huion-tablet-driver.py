@@ -286,16 +286,24 @@ def main_loop():
             data = main.dev.read(main.endpoint.bEndpointAddress,
                 main.endpoint.wMaxPacketSize)
 
-            # DATA INTERPRETATION EXAMPLE:
+            # DATA INTERPRETATION:
+            # source: https://github.com/andresm/digimend-kernel-drivers/commit/b7c8b33c0392e2a5e4e448f901e3dfc206d346a6
 
-            #  0    1      2   3    4   5  6  7  8  9  10  11  12    data index
-            #  ?  TYPE     X   X    Y   Y  P  P  X                   FIELD
-            # --------   -------- -------- ----  -
-            # [8, 128,   254, 70, 139, 94, 0, 0, 0, 0,  0,  0,  0]   e.g. value
-            #  ?  touch                                              e.g. meaning
-            #
-            # [8,  129,  144, 74, 231, 151, 144, 2, 1, 0, 0, 0]
-            #     touch
+            # 00 01 02 03 04 05 06 07 08 09 10 11
+            # ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^  ^
+            # |  |  |  |  |  |  |  |  |  |  |  |
+            # |  |  |  |  |  |  |  |  |  |  |  Y Tilt
+            # |  |  |  |  |  |  |  |  |  |  X Tilt
+            # |  |  |  |  |  |  |  |  |  Y HH
+            # |  |  |  |  |  |  |  |  X HH
+            # |  |  |  |  |  |  |  Pressure H
+            # |  |  |  |  |  |  Pressure L
+            # |  |  |  |  |  Y H
+            # |  |  |  |  Y L
+            # |  |  |  X H
+            # |  |  X L
+            # |  Pen buttons
+            # Report ID - 0x08
 
             is_hover     = data[1] == 128
             is_touch     = data[1] == 129
@@ -378,16 +386,17 @@ def main_loop():
             else:
                 # bitwise operations: n<<16 == n*65536 and n<<8 == n*256
                 X = (data[8]<<16) + (data[3]<<8) + data[2]
-                Y = (data[5]<<8) + data[4]
+                Y = (data[9]<<16) + (data[5]<<8) + data[4]
                 PRESS = (data[7]<<8) + data[6]
                 TILT_X = data[10]
-                TILT_Y = data[11]
+                TILT_Y = 0 - data[11] # invert Y tilt axis
 
                 main.vpen.write(ecodes.EV_ABS, ecodes.ABS_X, X)
                 main.vpen.write(ecodes.EV_ABS, ecodes.ABS_Y, Y)
                 main.vpen.write(ecodes.EV_ABS, ecodes.ABS_PRESSURE, PRESS)
                 main.vpen.write(ecodes.EV_KEY, ecodes.BTN_TOUCH,
                     is_touch and 1 or 0)
+                # Tilt wont probably work so easily. The value may need to be converted to degrees
                 main.vpen.write(ecodes.EV_KEY, ecodes.ABS_TILT_X, TILT_X)
                 main.vpen.write(ecodes.EV_KEY, ecodes.ABS_TILT_Y, TILT_Y)
                 main.vpen.write(ecodes.EV_KEY, ecodes.BTN_STYLUS,
