@@ -3,6 +3,7 @@
 import usb.core, usb.util
 import sys
 import os.path
+import platform
 from evdev import UInput, ecodes, AbsInfo
 import subprocess as sp
 import math, ast
@@ -187,8 +188,12 @@ def setup_driver():
             print("\t\t1) Left up 2) Right up 3) Left Down 4) Right Down")
         else:
             print("\t[Debug mode]. Input from tablet will also be printed out.")
-        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 
+        pf = platform.uname()
+        print("\n\tSYSTEM: {} {} ({} {})".format(
+            pf.system, pf.release, pf.machine, pf.processor))
+        print("\t{}".format(pf.version))
+        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 
 
 # -----------------------------------------------------------------------------
