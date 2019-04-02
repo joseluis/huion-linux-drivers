@@ -380,12 +380,16 @@ def main_loop():
                 X = (data[8]<<16) + (data[3]<<8) + data[2]
                 Y = (data[5]<<8) + data[4]
                 PRESS = (data[7]<<8) + data[6]
+                TILT_X = data[10]
+                TILT_Y = data[11]
 
                 main.vpen.write(ecodes.EV_ABS, ecodes.ABS_X, X)
                 main.vpen.write(ecodes.EV_ABS, ecodes.ABS_Y, Y)
                 main.vpen.write(ecodes.EV_ABS, ecodes.ABS_PRESSURE, PRESS)
                 main.vpen.write(ecodes.EV_KEY, ecodes.BTN_TOUCH,
                     is_touch and 1 or 0)
+                main.vpen.write(ecodes.EV_KEY, ecodes.ABS_TILT_X, TILT_X)
+                main.vpen.write(ecodes.EV_KEY, ecodes.ABS_TILT_Y, TILT_Y)
                 main.vpen.write(ecodes.EV_KEY, ecodes.BTN_STYLUS,
                     is_pen_btn1 and 1 or 0)
                 main.vpen.write(ecodes.EV_KEY, ecodes.BTN_STYLUS2,
