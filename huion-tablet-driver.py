@@ -105,21 +105,19 @@ def setup_driver():
 
     sys.stdout.write("Setting up driver. . . ")
 
-    # pressure sensitive pen tablet area with 2 stylus buttons and no eraser
+    # pressure sensitive pen tablet area with: 2 stylus buttons, no eraser, tilt
     cap_pen = {
-        ecodes.EV_KEY: [ecodes.BTN_TOUCH, ecodes.BTN_TOOL_PEN,
-            ecodes.BTN_STYLUS, ecodes.BTN_STYLUS2],
+        ecodes.EV_KEY: [ecodes.BTN_TOUCH, ecodes.BTN_TOOL_PEN,ecodes.BTN_STYLUS, ecodes.BTN_STYLUS2],
         ecodes.EV_ABS: [
-            (ecodes.ABS_X, AbsInfo(0,0,main.settings['pen_max_x'],0,0,
-                main.settings['resolution'])), # value,min,max,fuzz,flat,resolu.
-            (ecodes.ABS_Y, AbsInfo(0,0,main.settings['pen_max_y'],0,0,
-                main.settings['resolution'])),
+            # value,min,max,fuzz,flat,resolution
+            (ecodes.ABS_X,AbsInfo(0,0,main.settings['pen_max_x'],0,0,main.settings['resolution'])),
+            (ecodes.ABS_Y,AbsInfo(0,0,main.settings['pen_max_y'],0,0,main.settings['resolution'])),
             (ecodes.ABS_PRESSURE, AbsInfo(0,0,main.settings['pen_max_z'],0,0,0)),
+            (ecodes.ABS_TILT_X, AbsInfo(0,0,255,0,0,0)), # TODO: tweak
+            (ecodes.ABS_TILT_Y, AbsInfo(0,0,255,0,0,0)),
         ]
     }
-
-    main.vpen = UInput(events=cap_pen, name=main.settings['pen_device_name'],
-        version=0x3)
+    main.vpen = UInput(events=cap_pen, name=main.settings['pen_device_name'], version=0x3)
 
     print("Done!")
 
@@ -192,13 +190,20 @@ def setup_driver():
         devices = [InputDevice(path) for path in list_devices()]
         for device in devices:
             if device.name == main.settings['pen_device_name']:
-                print("\nDEVICE: {} ({})".format(device.fn, device.phys))
+                try:
+                    path = device.path
+                except:
+                    path = device.fn
+                print("\nDEVICE: {} ({})".format(path, device.phys))
                 print("{}".format(device.info))
+
+                print("\n{}".format(main.endpoint)) # DEBUG
+
                 print("\nTABLET CAPABILITIES:")
-                caps = device.capabilities()
+
+                caps = device.capabilities(verbose=True)
                 for cap in caps:
-                    print("{}".format(repr(caps[cap])))
-                #print(dir(device))
+                    print(caps[cap])
 
 
 # -----------------------------------------------------------------------------
@@ -282,7 +287,7 @@ def main_loop():
             print("\n(Input from the tablet will be printed out)")
 
         print("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-        print("\tIn order to show useful calibration info then")
+        print("\tIn order to share useful calibration info, please:")
         print("\tBriefly touch the four corners of the screen:")
         print("\t1) Left up 2) Right up 3) Left Down 4) Right Down")
         print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
@@ -301,8 +306,7 @@ def main_loop():
 
     while True:
         try:
-            data = main.dev.read(main.endpoint.bEndpointAddress,
-                main.endpoint.wMaxPacketSize)
+            data = main.dev.read(main.endpoint.bEndpointAddress, main.endpoint.wMaxPacketSize)
 
             # DATA INTERPRETATION:
             # source: https://github.com/andresm/digimend-kernel-drivers/commit/b7c8b33c0392e2a5e4e448f901e3dfc206d346a6
@@ -352,14 +356,23 @@ def main_loop():
                             HOVER_COUNT += 1
                 else:
                     HOVER_PREV = False
-                    print("data[{}] = {}".format(len(data), data))
-                    # interpreted_data = {
-                    #     "TYPE" : data[1],
-                    #     "X": "[8]<<16+[3]<<8+[2]={}".format((data[8]<<16)+(data[3]<<8)+data[2]),
-                    #     "Y": "[5]<<8+[4]={}".format((data[5]<<8)+data[4]),
-                    #     "PRESS": "[7]<<8+[6]={}".format((data[7]<<8)+data[6])
-                    # }
-                    # print(interpreted_data)
+
+                    data_str = ""
+                    for e in data:
+                        data_str += "{:03d} ".format(e)
+                    try:
+                        data_str2 = "| X:{:05d} Y:{:05d} PRES:{:04d} TILT_X:{:03d} TILT_Y:{:03d}".format(
+                            (data[8]<<16) + (data[3]<<8) + data[2],
+                            (data[9]<<16) + (data[5]<<8) + data[4],
+                            (data[7]<<8) + data[6],
+                            data[10],
+                            0 - data[11],
+                        )
+                    except:
+                        pass
+
+                    data_str += data_str2
+                    print("{}".format(data_str))
 
             if main.settings['tablet_debug_only']:
                 continue
@@ -417,10 +430,8 @@ def main_loop():
                 # Tilt wont probably work so easily. The value may need to be converted to degrees
                 main.vpen.write(ecodes.EV_KEY, ecodes.ABS_TILT_X, TILT_X)
                 main.vpen.write(ecodes.EV_KEY, ecodes.ABS_TILT_Y, TILT_Y)
-                main.vpen.write(ecodes.EV_KEY, ecodes.BTN_STYLUS,
-                    is_pen_btn1 and 1 or 0)
-                main.vpen.write(ecodes.EV_KEY, ecodes.BTN_STYLUS2,
-                    is_pen_btn2 and 1 or 0)
+                main.vpen.write(ecodes.EV_KEY, ecodes.BTN_STYLUS, is_pen_btn1 and 1 or 0)
+                main.vpen.write(ecodes.EV_KEY, ecodes.BTN_STYLUS2, is_pen_btn2 and 1 or 0)
                 main.vpen.syn()
 
         except usb.core.USBError as e:
