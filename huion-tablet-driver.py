@@ -369,7 +369,7 @@ def main_loop():
                             0 - data[11],
                         )
                     except:
-                        pass
+                        data_str2 = ""
 
                     data_str += data_str2
                     print("{}".format(data_str))
@@ -715,10 +715,15 @@ def read_config():
 
             # scrollbar
             if main.settings['scrollbar']:
-                MENU[section]['scroll_up'] = config.get(
-                    section, 'su').strip()
-                MENU[section]['scroll_down'] = config.get(
-                    section, 'sd').strip()
+                try:
+                    MENU[section]['scroll_up'] = config.get(section, 'su').strip()
+                except:
+                    MENU[section]['scroll_up'] = ""
+                try:
+                    MENU[section]['scroll_down'] = config.get(section, 'sd').strip()
+                except:
+                    MENU[section]['scroll_down'] = ""
+                print("»»sd: {}".format(MENU[section]['scroll_down']))
 
     main.current_menu = main.settings['start_menu']
 
