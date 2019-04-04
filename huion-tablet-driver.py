@@ -204,6 +204,8 @@ def setup_driver():
                 caps = device.capabilities(verbose=True)
                 for cap in caps:
                     print(caps[cap])
+        print("VPEN:")
+        print(main.vpen)
 
 
 # -----------------------------------------------------------------------------
@@ -285,12 +287,6 @@ def main_loop():
             print("\n(Input from the tablet will ONLY be used to print it out)")
         else:
             print("\n(Input from the tablet will be printed out)")
-
-        print("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-        print("\tIn order to share useful calibration info, please:")
-        print("\tBriefly touch the four corners of the screen:")
-        print("\t1) Left up 2) Right up 3) Left Down 4) Right Down")
-        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
     print()
 
     if main.current_menu:
@@ -300,7 +296,6 @@ def main_loop():
 
     if main.settings['debug_mode']:
         HOVER_PREV = False
-        HOVER_COUNT = 0
         if main.settings['tablet_debug_only']:
             print("Please slowly and briefly touch the LEFT UP corner of your tablet:");
 
@@ -346,20 +341,12 @@ def main_loop():
                     if not HOVER_PREV:
                         print("...")
                         HOVER_PREV = True
-                        if main.settings['tablet_debug_only']:
-                            if HOVER_COUNT == 1:
-                                print("Now touch the RIGHT UP corner of your tablet:");
-                            elif HOVER_COUNT == 2:
-                                print("Now touch the LEFT DOWN corner of your tablet:");
-                            elif HOVER_COUNT == 3:
-                                print("Now touch the RIGHT DOWN corner of your tablet:");
-                            HOVER_COUNT += 1
                 else:
                     HOVER_PREV = False
 
                     data_str = ""
                     for e in data:
-                        data_str += "{:03d} ".format(e)
+                        data_str += "{:02x} ".format(e)
                     try:
                         data_str2 = "| X:{:05d} Y:{:05d} PRES:{:04d} TILT_X:{:03d} TILT_Y:{:03d}".format(
                             (data[8]<<16) + (data[3]<<8) + data[2],
@@ -399,16 +386,17 @@ def main_loop():
                     if SCROLL_VAL_PREV == 0:
                         SCROLL_VAL_PREV=SCROLL_VAL
 
-                    if main.settings['scrollbar_reverse']:
-                        if SCROLL_VAL > SCROLL_VAL_PREV:
-                            do_shortcut("scrollbar", MENU[main.current_menu]['scroll_up'])
-                        elif SCROLL_VAL < SCROLL_VAL_PREV:
-                            do_shortcut("scrollbar", MENU[main.current_menu]['scroll_down'])
-                    else:
-                        if SCROLL_VAL < SCROLL_VAL_PREV:
-                            do_shortcut("scrollbar", MENU[main.current_menu]['scroll_up'])
-                        elif SCROLL_VAL > SCROLL_VAL_PREV:
-                            do_shortcut("scrollbar", MENU[main.current_menu]['scroll_down'])
+                    if main.current_menu:
+                        if main.settings['scrollbar_reverse']:
+                            if SCROLL_VAL > SCROLL_VAL_PREV:
+                                do_shortcut("scrollbar", MENU[main.current_menu]['scroll_up'])
+                            elif SCROLL_VAL < SCROLL_VAL_PREV:
+                                do_shortcut("scrollbar", MENU[main.current_menu]['scroll_down'])
+                        else:
+                            if SCROLL_VAL < SCROLL_VAL_PREV:
+                                do_shortcut("scrollbar", MENU[main.current_menu]['scroll_up'])
+                            elif SCROLL_VAL > SCROLL_VAL_PREV:
+                                do_shortcut("scrollbar", MENU[main.current_menu]['scroll_down'])
 
                 SCROLL_VAL_PREV = SCROLL_VAL
 
@@ -416,11 +404,32 @@ def main_loop():
 
             else:
                 # bitwise operations: n<<16 == n*65536 and n<<8 == n*256
-                X = (data[8]<<16) + (data[3]<<8) + data[2]
-                Y = (data[9]<<16) + (data[5]<<8) + data[4]
-                PRESS = (data[7]<<8) + data[6]
-                TILT_X = data[10]
-                TILT_Y = 0 - data[11] # invert Y tilt axis
+                try:
+                    X = (data[8]<<16) + (data[3]<<8) + data[2]
+                except:
+                    try:
+                        X = (data[3]<<8) + data[2]
+                    except:
+                        X = 0
+                try:
+                    Y = (data[9]<<16) + (data[5]<<8) + data[4]
+                except:
+                    try:
+                        Y = (data[9]<<16) + (data[5]<<8) + data[4]
+                    except:
+                        Y = 0
+                try:
+                    PRESS = (data[7]<<8) + data[6]
+                except:
+                    PRESS = main.settings['pen_max_z']
+                try:
+                    TILT_X = data[10]
+                except:
+                    TILT_X = 0
+                try:
+                    TILT_Y = 0 - data[11] # invert Y tilt axis
+                except:
+                    TILT_Y = 0
 
                 main.vpen.write(ecodes.EV_ABS, ecodes.ABS_X, X)
                 main.vpen.write(ecodes.EV_ABS, ecodes.ABS_Y, Y)
@@ -723,7 +732,6 @@ def read_config():
                     MENU[section]['scroll_down'] = config.get(section, 'sd').strip()
                 except:
                     MENU[section]['scroll_down'] = ""
-                print("»»sd: {}".format(MENU[section]['scroll_down']))
 
     main.current_menu = main.settings['start_menu']
 
