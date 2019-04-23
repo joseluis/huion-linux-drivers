@@ -43,6 +43,7 @@
  * [evdev](https://wiki.gentoo.org/wiki/Evdev)
  * [python-evdev](https://github.com/gvalkov/python-evdev)
  * [pyusb](https://walac.github.io/pyusb/)
+ * [numexpr](https://github.com/pydata/numexpr)
  * [xdotool][7] (optional, for button shorcuts)
  * [notify-send][8] (optional, for desktop notifications)
  * [xrandr][9] (optional, for monitor configuration) (and [arandr][10])
@@ -57,12 +58,14 @@
 Install packages in Archlinux:
 
 ```
-$  pacman -S xorg-xinput xf86-input-evdev python-evdev python-pyusb xdotool libnotify xorg-xrandr arandr
+$  pacman -S xorg-xinput xf86-input-evdev python-evdev python-pyusb xdotool \
+libnotify xorg-xrandr arandr python-numexpr
 ```
 
 Install packages in Ubuntu:
 ```
-$ sudo apt install xinput xserver-xorg-input-evdev python3-evdev python3-usb xdotool libnotify-bin arandr
+$ sudo apt install xinput xserver-xorg-input-evdev python3-evdev python3-usb \
+xdotool libnotify-bin arandr python3-numexpr
 ```
 
 ### Xorg Extra Code

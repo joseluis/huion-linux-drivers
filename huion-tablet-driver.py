@@ -6,7 +6,8 @@ import os.path
 import platform
 from evdev import UInput, ecodes, AbsInfo, InputDevice, list_devices
 import subprocess as sp
-import math, ast
+import math
+import numexpr
 from configparser import ConfigParser, ExtendedInterpolation
 from time import gmtime, strftime
 
@@ -550,36 +551,36 @@ def read_config():
         main.settings['model_name'] = "Unnamed Tablet"
 
     try:
-        main.settings['pen_max_x'] = ast.literal_eval(config.get(current_tablet, 'pen_max_x'))
+        main.settings['pen_max_x'] = numexpr.evaluate(config.get(current_tablet, 'pen_max_x'))
     except:
         main.settings['pen_max_x'] = 0
     try:
-        main.settings['pen_max_y'] = ast.literal_eval(config.get(current_tablet, 'pen_max_y'))
+        main.settings['pen_max_y'] = numexpr.evaluate(config.get(current_tablet, 'pen_max_y'))
     except:
         main.settings['pen_max_y'] = 0
     try:
-        main.settings['pen_max_z'] = ast.literal_eval(config.get(current_tablet, 'pen_max_z'))
+        main.settings['pen_max_z'] = numexpr.evaluate(config.get(current_tablet, 'pen_max_z'))
     except:
         main.settings['pen_max_z'] = 0
     try:
-        main.settings['resolution'] = ast.literal_eval(config.get(current_tablet, 'resolution'))
+        main.settings['resolution'] = numexpr.evaluate(config.get(current_tablet, 'resolution'))
     except:
         main.settings['resolution'] = 0
     # number of buttons in tablet
     try:
-        main.settings['buttons'] = ast.literal_eval(config.get(current_tablet, 'buttons'))
+        main.settings['buttons'] = numexpr.evaluate(config.get(current_tablet, 'buttons'))
     except:
         main.settings['buttons'] = 0
     # number of scrollbars
     try:
-        main.settings['scrollbar'] = ast.literal_eval(config.get(current_tablet, 'scrollbar'))
+        main.settings['scrollbar'] = numexpr.evaluate(config.get(current_tablet, 'scrollbar'))
     except:
         main.settings['scrollbar'] = 0
     try:
         main.settings['screen'] = config.getboolean(current_tablet, 'screen')
         try:
-            main.settings['screen_width'] = ast.literal_eval(config.get(current_tablet, 'screen_width'))
-            main.settings['screen_height'] = ast.literal_eval(config.get(current_tablet, 'screen_height'))
+            main.settings['screen_width'] = numexpr.evaluate(config.get(current_tablet, 'screen_width'))
+            main.settings['screen_height'] = numexpr.evaluate(config.get(current_tablet, 'screen_height'))
         except:
             main.settings['screen_width'] = 1920
             main.settings['screen_height'] = 1080
@@ -660,13 +661,13 @@ def read_config():
     try:
         main.settings['monitor_setup'] = config.get('config', 'current_monitor_setup')
         current_monitor_setup =  main.settings['monitor_setup'].split("#",1)[0].strip('[]').strip()
-        main.settings['total_screen_width'] = ast.literal_eval(config.get(current_monitor_setup,
+        main.settings['total_screen_width'] = numexpr.evaluate(config.get(current_monitor_setup,
             'total_screen_width').split("#",1)[0].strip())
-        main.settings['total_screen_height'] = ast.literal_eval(config.get(current_monitor_setup,
+        main.settings['total_screen_height'] = numexpr.evaluate(config.get(current_monitor_setup,
             'total_screen_height').split("#",1)[0].strip())
-        main.settings['tablet_offset_x'] = ast.literal_eval(config.get(current_monitor_setup,
+        main.settings['tablet_offset_x'] = numexpr.evaluate(config.get(current_monitor_setup,
             'tablet_offset_x').split("#",1)[0].strip())
-        main.settings['tablet_offset_y'] = ast.literal_eval(config.get(current_monitor_setup,
+        main.settings['tablet_offset_y'] = numexpr.evaluate(config.get(current_monitor_setup,
             'tablet_offset_y').split("#",1)[0].strip())
 
         main.settings['xrandr_args'] = config.get(current_monitor_setup,
@@ -678,11 +679,11 @@ def read_config():
 
     try:
         main.settings['enable_calibration'] = config.getboolean('config', 'enable_calibration')
-        main.settings['calibrate_min_x'] = ast.literal_eval(config.get('config',
+        main.settings['calibrate_min_x'] = numexpr.evaluate(config.get('config',
             'calibrate_min_x').split("#",1)[0].strip())
-        main.settings['calibrate_max_x'] = ast.literal_eval(config.get('config',
+        main.settings['calibrate_max_x'] = numexpr.evaluate(config.get('config',
             'calibrate_max_x').split("#",1)[0].strip())
-        main.settings['calibrate_min_y'] = ast.literal_eval(config.get('config',
+        main.settings['calibrate_min_y'] = numexpr.evaluate(config.get('config',
             'calibrate_min_y').split("#",1)[0].strip())
         main.settings['calibrate_max_y'] = config.get('config',
             'calibrate_max_y').split("#",1)[0].strip()
