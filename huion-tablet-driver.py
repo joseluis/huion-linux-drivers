@@ -41,7 +41,10 @@ def find_usb_device():
     """
     sys.stdout.write("Finding USB device. . . ")
 
-    main.dev = usb.core.find(idVendor=0x256c, idProduct=0x006e)
+    device_ids = [(0x256c, 0x006d), (0x256c, 0x006e)]
+    for cur_dev_id in device_ids:
+        main.dev = usb.core.find(idVendor=cur_dev_id[0], idProduct=cur_dev_id[1])
+        if main.dev: break
 
     if not main.dev:
         print("Error, Could not find device, maybe already opened?",
