@@ -1,6 +1,20 @@
 # User Space Linux Drivers for Huion Tablets
 
-## Features
+
+## Table of Contents
+
+- [Features](#features-)
+- [Usage](#usage-)
+- [Requirements](#requirements-)
+  - [Dependencies](#dependencies-)
+  - [Xorg extra code](#xorg-extra-code-)
+- [Troubleshooting](#troubleshooting-)
+- [Config Examples](#config-examples-)
+  - [Multi-Monitor](#multi-monitor-)
+  - [Shortcuts](#shortcuts-)
+- [Help Wanted](#help-wanted-)
+
+## Features [↑](#table-of-contents "Back to TOC")
 
  * Supports multiple tablet models
  * Precise cursor positioning
@@ -13,7 +27,7 @@
  * Versatile configuration file
 
 
-## Usage
+## Usage [↑](#table-of-contents "Back to TOC")
 
  * Follow the requirements: Install the dependencies and the xorg extra code.
  * Download this repository (You only need `huion-tablet-driver.py` and `config.ini`).
@@ -21,9 +35,9 @@
  * Run `sudo ./huion-tablet-driver.py` (needs superuser privileges)
 
 
-## Requirements
+## Requirements [↑](#table-of-contents "Back to TOC")
 
-### Dependencies
+### Dependencies [↑](#table-of-contents "Back to TOC")
 
  * [python](https://www.python.org/) version 3.5 or greater
  * [uclogic-tools](https://github.com/DIGImend/uclogic-tools) ([read why][2])
@@ -68,7 +82,7 @@ $ sudo apt install xinput xserver-xorg-input-evdev python3-evdev python3-usb \
 xdotool libnotify-bin arandr python3-numexpr
 ```
 
-### Xorg Extra Code
+### Xorg Extra Code [↑](#table-of-contents "Back to TOC")
 
 You will likely also need to add some code to the Xorg server.
 Create a new file in` /etc/X11/xorg.conf.d/evdev-tablet.conf` with the following content:
@@ -82,7 +96,20 @@ Section "InputClass"
 EndSection
 ```
 
-## Multi-Monitor
+## Troubleshooting [↑](#table-of-contents "Back to TOC")
+
+### My tablet doesn't provide any inputs despite all my debugging efforts
+
+Maybe you're connecting the table through a USV hub, or USB docking station? This is known to have caused problems in the past. Try plugging the tablet directly to the computer.
+
+### `/usr/local/bin/uclogic-probe: not found`
+
+You eiher need to compile uclogic binaries (see [Dependencies](#dependencies-)), or they are installed in a different location. For example Debian 10 automatically installs them under `/usr/bin/`. Try updating the path in the `config.ini` file, which by default is: `uclogic_bins = /usr/local/bin`.
+
+
+## Config Examples [↑](#table-of-contents "Back to TOC")
+
+### Multi-Monitor [↑](#table-of-contents "Back to TOC")
 
 If you have a multi-monitor setup, edit your copy of `config.ini`
 with the correct values for your particular setup.
@@ -100,7 +127,7 @@ existing examples in the section 3 of the `config.ini` file.
 [More information about multiple monitors in the wiki](https://github.com/joseluis/huion-linux-drivers/wiki/Multi-Monitor)
 
 
-## Shortcuts
+### Shortcuts [↑](#table-of-contents "Back to TOC")
 
 To customize the shortcuts associated with the buttons and the scrollbar,
 edit the file `config.ini`, and use the xdotool syntax for the buttons actions.
@@ -136,3 +163,9 @@ b9 = key 6             # turn right (krita)
 [See an example with multiple menus in the wiki](https://github.com/joseluis/huion-linux-drivers/wiki/Buttons-Shortcuts#12-example-with-multiple-menus)
 
 
+### Help Wanted [↑](#table-of-contents "Back to TOC")
+
+Any help is welcomed, specially on the following issues: 
+
+- [Wayland Support](https://github.com/joseluis/huion-linux-drivers/issues/25)
+- [CPU hogging](https://github.com/joseluis/huion-linux-drivers/issues/26)
