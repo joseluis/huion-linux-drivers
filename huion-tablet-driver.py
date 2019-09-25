@@ -300,8 +300,6 @@ def main_loop():
 
     if main.settings['debug_mode']:
         HOVER_PREV = False
-        if main.settings['tablet_debug_only']:
-            print("Please slowly and briefly touch the LEFT UP corner of your tablet:");
 
     while True:
         try:
