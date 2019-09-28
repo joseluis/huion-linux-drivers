@@ -12,7 +12,8 @@
 - [Config Examples](#config-examples-)
   - [Multi-Monitor](#multi-monitor-)
   - [Shortcuts](#shortcuts-)
-- [Help Wanted](#help-wanted-)
+- [Help Welcomed](#help-welcomed-)
+  - [To do](#to-do-)
 
 ## Features [↑](#table-of-contents "Back to TOC")
 
@@ -102,7 +103,7 @@ EndSection
 
 Maybe you're connecting the table through a USV hub, or USB docking station? This is known to have caused problems in the past. Try plugging the tablet directly to the computer.
 
-### `/usr/local/bin/uclogic-probe: not found`
+### /usr/local/bin/uclogic-probe: not found
 
 You eiher need to compile uclogic binaries (see [Dependencies](#dependencies-)), or they are installed in a different location. For example Debian 10 automatically installs them under `/usr/bin/`. Try updating the path in the `config.ini` file, which by default is: `uclogic_bins = /usr/local/bin`.
 
@@ -137,9 +138,9 @@ First, assign the menu you're going to use as the starting menu.
 ### Example with a Single Buttons Menu
 
 ```
-start_menu = [menu_simple]
+start_menu = [menu_simple_10b]
 
-[menu_simple]
+[menu_simple_10b]
 
 # upper buttons
 b0 = key Tab           # hide interface
@@ -163,9 +164,12 @@ b9 = key 6             # turn right (krita)
 [See an example with multiple menus in the wiki](https://github.com/joseluis/huion-linux-drivers/wiki/Buttons-Shortcuts#12-example-with-multiple-menus)
 
 
-### Help Wanted [↑](#table-of-contents "Back to TOC")
+## Help Welcomed [↑](#table-of-contents "Back to TOC")
 
-Any help is welcomed, specially on the following issues: 
+Please take a look to the open issues to see if you can help with something. Thanks.
 
-- [Wayland Support](https://github.com/joseluis/huion-linux-drivers/issues/25)
-- [CPU hogging](https://github.com/joseluis/huion-linux-drivers/issues/26)
+### To do [↑](#table-of-contents "Back to TOC")
+
+  - [ ] make tilt work [#33]
+  - [ ] use udev rules instead of sudo [#31]
+
