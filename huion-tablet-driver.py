@@ -447,9 +447,9 @@ def main_loop():
 
         except usb.core.USBError as e:
             data = None
-            if e.args == ('Operation timed out',):
+            if e.args == (19,'No such device (it may have been disconnected)'):
                 print(e, file=sys.stderr)
-                continue
+                sys.exit()
 
 
 # -----------------------------------------------------------------------------
