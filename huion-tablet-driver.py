@@ -9,7 +9,7 @@ import subprocess as sp
 import math
 import numexpr
 from configparser import ConfigParser, ExtendedInterpolation
-from time import gmtime, strftime
+from time import gmtime, strftime, sleep
 
 MENU = {}
 
@@ -301,7 +301,7 @@ def main_loop():
     if main.settings['debug_mode']:
         HOVER_PREV = False
 
-    while True:
+    while not sleep(main.settings['refresh_rate_fps']):
         try:
             data = main.dev.read(main.endpoint.bEndpointAddress, main.endpoint.wMaxPacketSize)
 
@@ -447,9 +447,9 @@ def main_loop():
 
         except usb.core.USBError as e:
             data = None
-            if e.args == (19,'No such device (it may have been disconnected)'):
+            if e.args == ('Operation timed out',):
                 print(e, file=sys.stderr)
-                sys.exit()
+                continue
 
 
 # -----------------------------------------------------------------------------
@@ -691,14 +691,18 @@ def read_config():
     except:
         main.settings['enable_calibration'] = False
 
-    # miscellaneus
+    # miscellaneous
+    print('AAAA', numexpr.evaluate(config.get('config', 'refresh_rate_fps')))
 
     main.settings['uclogic_bins'] = config.get('config', 'uclogic_bins')
     try:
         main.settings['enable_notifications'] = config.getboolean('config', 'enable_notifications')
     except:
         main.settings['enable_notifications'] = True
-
+    try:
+        main.settings['refresh_rate_fps'] = 1 / numexpr.evaluate(config.get('config', 'refresh_rate_fps').split("#",1)[0].strip())
+    except:
+        main.settings['refresh_rate_fps'] = 1 / 100
     try:
         main.settings['start_menu'] = config.get('config', 'start_menu').strip('[]')
     except:
