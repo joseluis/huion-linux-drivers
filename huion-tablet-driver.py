@@ -28,7 +28,7 @@ class main():
     def run():
         find_usb_device()
         read_config()
-        prepare_driver()
+        #prepare_driver()
         setup_driver()
         calibrate()
         multi_monitor()
@@ -208,8 +208,15 @@ def setup_driver():
                 caps = device.capabilities(verbose=True)
                 for cap in caps:
                     print(caps[cap])
-        print("VPEN:")
+        print("\nVPEN:")
         print(main.vpen)
+
+        print("\nXINPUT:")
+        cmd='xinput list --short | grep "Tablet Monitor Pen"'
+        try:
+            sp.run(cmd, shell=True, check=True)
+        except sp.CalledProcessError as e:
+            run_error(e, cmd)
 
 
 # -----------------------------------------------------------------------------
