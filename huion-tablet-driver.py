@@ -9,7 +9,7 @@ import subprocess as sp
 import math
 import numexpr
 from configparser import ConfigParser, ExtendedInterpolation
-from time import gmtime, strftime
+from time import gmtime, strftime, sleep
 
 MENU = {}
 
@@ -308,7 +308,7 @@ def main_loop():
     if main.settings['debug_mode']:
         HOVER_PREV = False
 
-    while True:
+    while not sleep(main.settings['refresh_rate_fps']):
         try:
             data = main.dev.read(main.endpoint.bEndpointAddress, main.endpoint.wMaxPacketSize)
 
@@ -705,7 +705,10 @@ def read_config():
         main.settings['enable_notifications'] = config.getboolean('config', 'enable_notifications')
     except:
         main.settings['enable_notifications'] = True
-
+    try:
+        main.settings['refresh_rate_fps'] = 1 / numexpr.evaluate(config.get('config', 'refresh_rate_fps').split("#",1)[0].strip())
+    except:
+        main.settings['refresh_rate_fps'] = 1 / 100
     try:
         main.settings['start_menu'] = config.get('config', 'start_menu').strip('[]')
     except:
