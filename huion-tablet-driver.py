@@ -117,8 +117,8 @@ def setup_driver():
             (ecodes.ABS_X,AbsInfo(0,0,main.settings['pen_max_x'],0,0,main.settings['resolution'])),
             (ecodes.ABS_Y,AbsInfo(0,0,main.settings['pen_max_y'],0,0,main.settings['resolution'])),
             (ecodes.ABS_PRESSURE, AbsInfo(0,0,main.settings['pen_max_z'],0,0,0)),
-            (ecodes.ABS_TILT_X, AbsInfo(0,0,255,0,0,0)), # TODO: tweak
-            (ecodes.ABS_TILT_Y, AbsInfo(0,0,255,0,0,0)),
+            (ecodes.ABS_TILT_X, AbsInfo(0,main.settings['pen_min_tilt'],main.settings['pen_max_tilt'],0,0,0)),
+            (ecodes.ABS_TILT_Y, AbsInfo(0,main.settings['pen_min_tilt'],main.settings['pen_max_tilt'],0,0,0)),
         ]
     }
     main.vpen = UInput(events=cap_pen, name=main.settings['pen_device_name'], version=0x3)
@@ -361,9 +361,10 @@ def main_loop():
                             (data[8]<<16) + (data[3]<<8) + data[2],
                             (data[9]<<16) + (data[5]<<8) + data[4],
                             (data[7]<<8) + data[6],
-                            data[10],
-                            0 - data[11],
+                            data[10] >= 128 and (data[10]-256) or data[10],
+                            0 - (data[11] >= 128 and (data[11]-256) or data[11]),
                         )
+                        #   ^ tilt calculation source: https://github.com/Mantaseus/Huion_Kamvas_Linux/blob/master/driver/kamvas_driver.py#L222
                     except:
                         data_str2 = ""
 
@@ -431,12 +432,14 @@ def main_loop():
                     PRESS = (data[7]<<8) + data[6]
                 except:
                     PRESS = main.settings['pen_max_z']
+
+                # tilt calculation source: https://github.com/Mantaseus/Huion_Kamvas_Linux/blob/master/driver/kamvas_driver.py#L222
                 try:
-                    TILT_X = data[10]
+                    TILT_X = data[10] >= 128 and (data[10]-256) or data[10]
                 except:
                     TILT_X = 0
                 try:
-                    TILT_Y = 0 - data[11] # invert Y tilt axis
+                    TILT_Y = 0 - (data[11] >= 128 and (data[11]-256) or data[11]) # invert Y tilt axis
                 except:
                     TILT_Y = 0
 
@@ -446,8 +449,8 @@ def main_loop():
                 main.vpen.write(ecodes.EV_KEY, ecodes.BTN_TOUCH,
                     is_touch and 1 or 0)
                 # Tilt wont probably work so easily. The value may need to be converted to degrees
-                main.vpen.write(ecodes.EV_KEY, ecodes.ABS_TILT_X, TILT_X)
-                main.vpen.write(ecodes.EV_KEY, ecodes.ABS_TILT_Y, TILT_Y)
+                main.vpen.write(ecodes.EV_ABS, ecodes.ABS_TILT_X, TILT_X)
+                main.vpen.write(ecodes.EV_ABS, ecodes.ABS_TILT_Y, TILT_Y)
                 main.vpen.write(ecodes.EV_KEY, ecodes.BTN_STYLUS, is_pen_btn1 and 1 or 0)
                 main.vpen.write(ecodes.EV_KEY, ecodes.BTN_STYLUS2, is_pen_btn2 and 1 or 0)
                 main.vpen.syn()
@@ -570,6 +573,14 @@ def read_config():
         main.settings['pen_max_z'] = numexpr.evaluate(config.get(current_tablet, 'pen_max_z'))
     except:
         main.settings['pen_max_z'] = 0
+    try:
+        main.settings['pen_min_tilt'] = numexpr.evaluate(config.get(current_tablet, 'pen_min_tilt'))
+    except:
+        main.settings['pen_min_tilt'] = 0
+    try:
+        main.settings['pen_max_tilt'] = numexpr.evaluate(config.get(current_tablet, 'pen_max_tilt'))
+    except:
+        main.settings['pen_max_tilt'] = 0
     try:
         main.settings['resolution'] = numexpr.evaluate(config.get(current_tablet, 'resolution'))
     except:
