@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
-import usb.core, usb.util
+import usb.core
+import usb.util
 import sys
 import os.path
 import platform
@@ -25,10 +26,11 @@ class main():
     vpen = None
     current_menu = None
 
+    @staticmethod
     def run():
         find_usb_device()
         read_config()
-        #prepare_driver()
+        # prepare_driver()
         setup_driver()
         calibrate()
         multi_monitor()
@@ -44,11 +46,11 @@ def find_usb_device():
     device_ids = [(0x256c, 0x006d), (0x256c, 0x006e)]
     for cur_dev_id in device_ids:
         main.dev = usb.core.find(idVendor=cur_dev_id[0], idProduct=cur_dev_id[1])
-        if main.dev: break
+        if main.dev:
+            break
 
     if not main.dev:
-        print("Error, Could not find device, maybe already opened?",
-            file=sys.stderr)
+        print("Error, Could not find device, maybe already opened?", file=sys.stderr)
         sys.exit(1)
     else:
         print("Done!")
@@ -63,7 +65,7 @@ def find_usb_device():
                 usb.util.claim_interface(main.dev, i.index)
                 print("grabbed interface %d", i.index)
 
-    main.endpoint = main.dev[0][(0,0)][0]
+    main.endpoint = main.dev[0][(0, 0)][0]
 
 
 # -----------------------------------------------------------------------------
@@ -75,8 +77,8 @@ def prepare_driver():
 
     sys.stdout.write("Preparing driver. . . ")
 
-    module_old   = "hid_uclogic"
-    module_new   = "uinput"
+    module_old = "hid_uclogic"
+    module_new = "uinput"
 
     module_found = sp.run('lsmod | grep "^{}"'.format(module_old), shell=True)
 
@@ -88,7 +90,7 @@ def prepare_driver():
 
     sp.run('modprobe "{}"'.format(module_new), shell=True)
 
-    cmd='"{}/uclogic-probe" "{}" "{}" | "{}/uclogic-decode"'.format(
+    cmd = '"{}/uclogic-probe" "{}" "{}" | "{}/uclogic-decode"'.format(
         main.settings['uclogic_bins'], main.dev.bus, main.dev.address,
         main.settings['uclogic_bins'])
     try:
@@ -99,7 +101,7 @@ def prepare_driver():
     print("Done!")
 
     if main.settings['debug_mode']:
-        print('-'*80+'\n'+ uc_str.stdout.decode("utf-8") +'-'*80)
+        print('-'*80+'\n' + uc_str.stdout.decode("utf-8") + '-' * 80)
 
 
 # -----------------------------------------------------------------------------
@@ -111,14 +113,14 @@ def setup_driver():
 
     # pressure sensitive pen tablet area with: 2 stylus buttons, no eraser, tilt
     cap_pen = {
-        ecodes.EV_KEY: [ecodes.BTN_TOUCH, ecodes.BTN_TOOL_PEN,ecodes.BTN_STYLUS, ecodes.BTN_STYLUS2],
+        ecodes.EV_KEY: [ecodes.BTN_TOUCH, ecodes.BTN_TOOL_PEN, ecodes.BTN_STYLUS, ecodes.BTN_STYLUS2],
         ecodes.EV_ABS: [
             # value,min,max,fuzz,flat,resolution
-            (ecodes.ABS_X,AbsInfo(0,0,main.settings['pen_max_x'],0,0,main.settings['resolution'])),
-            (ecodes.ABS_Y,AbsInfo(0,0,main.settings['pen_max_y'],0,0,main.settings['resolution'])),
-            (ecodes.ABS_PRESSURE, AbsInfo(0,0,main.settings['pen_max_z'],0,0,0)),
-            (ecodes.ABS_TILT_X, AbsInfo(0,main.settings['pen_min_tilt'],main.settings['pen_max_tilt'],0,0,0)),
-            (ecodes.ABS_TILT_Y, AbsInfo(0,main.settings['pen_min_tilt'],main.settings['pen_max_tilt'],0,0,0)),
+            (ecodes.ABS_X, AbsInfo(0, 0, main.settings['pen_max_x'], 0, 0, main.settings['resolution'])),
+            (ecodes.ABS_Y, AbsInfo(0, 0, main.settings['pen_max_y'], 0, 0, main.settings['resolution'])),
+            (ecodes.ABS_PRESSURE, AbsInfo(0, 0, main.settings['pen_max_z'], 0, 0, 0)),
+            (ecodes.ABS_TILT_X, AbsInfo(0, main.settings['pen_min_tilt'], main.settings['pen_max_tilt'], 0, 0, 0)),
+            (ecodes.ABS_TILT_Y, AbsInfo(0, main.settings['pen_min_tilt'], main.settings['pen_max_tilt'], 0, 0, 0)),
         ]
     }
     main.vpen = UInput(events=cap_pen, name=main.settings['pen_device_name'], version=0x3)
@@ -129,7 +131,7 @@ def setup_driver():
 
     print("\tTablet model name         {}".format(main.settings['model_name']))
 
-    if main.settings['enable_buttons'] and main.settings['buttons'] > 0 :
+    if main.settings['enable_buttons'] and main.settings['buttons'] > 0:
         print("\tButtons                   ENABLED ({})".format(
             main.settings['buttons']))
     else:
@@ -142,11 +144,9 @@ def setup_driver():
             main.settings['scrollbar']))
 
         if main.settings['scrollbar_reverse']:
-            print("\t\tReversed:         {}".format(
-            main.settings['scrollbar_reverse']))
+            print("\t\tReversed:         {}".format(main.settings['scrollbar_reverse']))
     else:
-        print("\tScrollbar                 disabled ({})".format(
-           main.settings['scrollbar']))
+        print("\tScrollbar                 disabled ({})".format(main.settings['scrollbar']))
 
     # notifications
     if main.settings['enable_notifications']:
@@ -201,7 +201,7 @@ def setup_driver():
                 print("\nDEVICE: {} ({})".format(path, device.phys))
                 print("{}".format(device.info))
 
-                print("\n{}".format(main.endpoint)) # DEBUG
+                print("\n{}".format(main.endpoint))  # DEBUG
 
                 print("\nTABLET CAPABILITIES:")
 
@@ -212,7 +212,7 @@ def setup_driver():
         print(main.vpen)
 
         print("\nXINPUT:")
-        cmd='xinput list --short | grep "Tablet Monitor Pen"'
+        cmd = 'xinput list --short | grep "Tablet Monitor Pen"'
         try:
             sp.run(cmd, shell=True, check=True)
         except sp.CalledProcessError as e:
@@ -231,7 +231,7 @@ def multi_monitor():
 
     if main.settings['enable_xrandr']:
         print("Running xrandr. . . ")
-        cmd='xrandr {}'.format(main.settings['xrandr_args'])
+        cmd = 'xrandr {}'.format(main.settings['xrandr_args'])
         if main.settings['debug_mode']:
             print('» {}'.format(cmd))
         try:
@@ -239,12 +239,12 @@ def multi_monitor():
         except sp.CalledProcessError as e:
             run_error(e, cmd)
 
-    C0=(main.settings['screen_width'] / main.settings['total_screen_width'])
-    C1=(main.settings['tablet_offset_x'] / main.settings['total_screen_width'])
-    C2=(main.settings['screen_height'] / main.settings['total_screen_height'])
-    C3=(main.settings['tablet_offset_y'] / main.settings['total_screen_height'])
+    C0 = (main.settings['screen_width'] / main.settings['total_screen_width'])
+    C1 = (main.settings['tablet_offset_x'] / main.settings['total_screen_width'])
+    C2 = (main.settings['screen_height'] / main.settings['total_screen_height'])
+    C3 = (main.settings['tablet_offset_y'] / main.settings['total_screen_height'])
 
-    cmd='xinput set-prop "{}" --type=float "{}" {} 0 {} 0 {} {} 0 0 1'.format(
+    cmd = 'xinput set-prop "{}" --type=float "{}" {} 0 {} 0 {} {} 0 0 1'.format(
         main.settings['pen_device_name'], "Coordinate Transformation Matrix",
         C0, C1, C2, C3)
     try:
@@ -259,6 +259,7 @@ def multi_monitor():
         main.settings['screen_width'], main.settings['screen_height'],
         main.settings['tablet_offset_x'], main.settings['tablet_offset_y']))
 
+
 # -----------------------------------------------------------------------------
 def calibrate():
 
@@ -267,7 +268,7 @@ def calibrate():
 
     sys.stdout.write("Calibrating. . . ")
 
-    cmd='xinput set-int-prop "{}" "Evdev Axis Calibration" 32 {} {} {} {}'.format(
+    cmd = 'xinput set-int-prop "{}" "Evdev Axis Calibration" 32 {} {} {} {}'.format(
             main.settings['pen_device_name'],
             main.settings['calibrate_min_x'], main.settings['calibrate_max_x'],
             main.settings['calibrate_min_y'], main.settings['calibrate_max_y'])
@@ -276,7 +277,7 @@ def calibrate():
     except sp.CalledProcessError as e:
         run_error(e, cmd)
 
-    cmd='xinput set-int-prop "{}" "Evdev Axes Swap" 8 0'.format(
+    cmd = 'xinput set-int-prop "{}" "Evdev Axes Swap" 8 0'.format(
         main.settings['pen_device_name'])
     try:
         sp.run(cmd, shell=True, check=True)
@@ -303,7 +304,7 @@ def main_loop():
     if main.current_menu:
         switch_menu(main.current_menu)
 
-    SCROLL_VAL_PREV=0
+    SCROLL_VAL_PREV = 0
 
     if main.settings['debug_mode']:
         HOVER_PREV = False
@@ -331,17 +332,16 @@ def main_loop():
             # |  Pen buttons
             # Report ID - 0x08
 
-            is_hover     = data[1] == 128
-            is_touch     = data[1] == 129
+            is_hover = data[1] == 128
+            is_touch = data[1] == 129
             is_buttonbar = data[1] == 224
             is_scrollbar = data[1] == 240
             if main.settings['pen_buttons_reverse']:
-                is_pen_btn1  = data[1] == 132 # right
-                is_pen_btn2  = data[1] == 130 # middle
+                is_pen_btn1 = data[1] == 132  # right
+                is_pen_btn2 = data[1] == 130  # middle
             else:
-                is_pen_btn1  = data[1] == 130 # middle
-                is_pen_btn2  = data[1] == 132 # right
-
+                is_pen_btn1 = data[1] == 130  # middle
+                is_pen_btn2 = data[1] == 132  # right
 
             # DEBUG
 
@@ -358,13 +358,13 @@ def main_loop():
                         data_str += "{:02x} ".format(e)
                     try:
                         data_str2 = "| X:{:05d} Y:{:05d} PRES:{:04d} TILT_X:{:03d} TILT_Y:{:03d}".format(
-                            (data[8]<<16) + (data[3]<<8) + data[2],
-                            (data[9]<<16) + (data[5]<<8) + data[4],
-                            (data[7]<<8) + data[6],
+                            (data[8] << 16) + (data[3] << 8) + data[2],
+                            (data[9] << 16) + (data[5] << 8) + data[4],
+                            (data[7] << 8) + data[6],
+                            # tilt calculation
                             data[10] >= 128 and (data[10]-256) or data[10],
                             0 - (data[11] >= 128 and (data[11]-256) or data[11]),
                         )
-                        #   ^ tilt calculation source: https://github.com/Mantaseus/Huion_Kamvas_Linux/blob/master/driver/kamvas_driver.py#L222
                     except:
                         data_str2 = ""
 
@@ -374,14 +374,13 @@ def main_loop():
             if main.settings['tablet_debug_only']:
                 continue
 
-
             # BUTTON EVENT
 
             if is_buttonbar and main.settings['enable_buttons']:
                 # get the button value in power of two (1, 2, 4, 16, 32...)
                 BUTTON_VAL = (data[5] << 8) + data[4]
 
-                if BUTTON_VAL > 0: # 0 means release
+                if BUTTON_VAL > 0:  # 0 means release
                     # convert to the exponent (0, 1, 2, 3, 4...)
                     BUTTON_VAL = int(math.log(BUTTON_VAL, 2))
                     if main.current_menu:
@@ -392,9 +391,9 @@ def main_loop():
             elif is_scrollbar and main.settings['enable_scrollbar']:
                 SCROLL_VAL = data[5]
 
-                if SCROLL_VAL > 0: # 0 means release
+                if SCROLL_VAL > 0:  # 0 means release
                     if SCROLL_VAL_PREV == 0:
-                        SCROLL_VAL_PREV=SCROLL_VAL
+                        SCROLL_VAL_PREV = SCROLL_VAL
 
                     if main.current_menu:
                         if main.settings['scrollbar_reverse']:
@@ -415,40 +414,37 @@ def main_loop():
             else:
                 # bitwise operations: n<<16 == n*65536 and n<<8 == n*256
                 try:
-                    X = (data[8]<<16) + (data[3]<<8) + data[2]
+                    X = (data[8] << 16) + (data[3] << 8) + data[2]
                 except:
                     try:
-                        X = (data[3]<<8) + data[2]
+                        X = (data[3] << 8) + data[2]
                     except:
                         X = 0
                 try:
-                    Y = (data[9]<<16) + (data[5]<<8) + data[4]
+                    Y = (data[9] << 16) + (data[5] << 8) + data[4]
                 except:
                     try:
-                        Y = (data[9]<<16) + (data[5]<<8) + data[4]
+                        Y = (data[9] << 16) + (data[5] << 8) + data[4]
                     except:
                         Y = 0
                 try:
-                    PRESS = (data[7]<<8) + data[6]
+                    PRESS = (data[7] << 8) + data[6]
                 except:
                     PRESS = main.settings['pen_max_z']
 
-                # tilt calculation source: https://github.com/Mantaseus/Huion_Kamvas_Linux/blob/master/driver/kamvas_driver.py#L222
                 try:
                     TILT_X = data[10] >= 128 and (data[10]-256) or data[10]
                 except:
                     TILT_X = 0
                 try:
-                    TILT_Y = 0 - (data[11] >= 128 and (data[11]-256) or data[11]) # invert Y tilt axis
+                    TILT_Y = 0 - (data[11] >= 128 and (data[11]-256) or data[11])  # invert Y tilt axis
                 except:
                     TILT_Y = 0
 
                 main.vpen.write(ecodes.EV_ABS, ecodes.ABS_X, X)
                 main.vpen.write(ecodes.EV_ABS, ecodes.ABS_Y, Y)
                 main.vpen.write(ecodes.EV_ABS, ecodes.ABS_PRESSURE, PRESS)
-                main.vpen.write(ecodes.EV_KEY, ecodes.BTN_TOUCH,
-                    is_touch and 1 or 0)
-                # Tilt wont probably work so easily. The value may need to be converted to degrees
+                main.vpen.write(ecodes.EV_KEY, ecodes.BTN_TOUCH, is_touch and 1 or 0)
                 main.vpen.write(ecodes.EV_ABS, ecodes.ABS_TILT_X, TILT_X)
                 main.vpen.write(ecodes.EV_ABS, ecodes.ABS_TILT_Y, TILT_Y)
                 main.vpen.write(ecodes.EV_KEY, ecodes.BTN_STYLUS, is_pen_btn1 and 1 or 0)
@@ -457,7 +453,7 @@ def main_loop():
 
         except usb.core.USBError as e:
             data = None
-            if e.args == (19,'No such device (it may have been disconnected)'):
+            if e.args == (19, 'No such device (it may have been disconnected)'):
                 print(e, file=sys.stderr)
                 sys.exit()
 
@@ -486,15 +482,15 @@ def keypress(title, sequence):
     """
     if main.settings['enable_notifications']:
         if (title == 'scrollbar' and main.settings['scrollbar_notifications']) \
-            or (title != 'scrollbar' and main.settings['buttons_notifications']):
+        or (title != 'scrollbar' and main.settings['buttons_notifications']):
 
-            cmd='notify-send "{}" "{}"'.format(title, sequence)
+            cmd = 'notify-send "{}" "{}"'.format(title, sequence)
             try:
                 sp.run(cmd, shell=True, check=True)
             except sp.CalledProcessError as e:
                 run_error(e, cmd)
 
-    cmd="xdotool {}".format(sequence)
+    cmd = "xdotool {}".format(sequence)
     try:
         sp.run(cmd, shell=True, check=True)
     except sp.CalledProcessError as e:
@@ -519,7 +515,7 @@ def switch_menu(new_menu):
     print(menu_title + menu_text)
 
     if main.settings['enable_notifications']:
-        cmd='notify-send "{}" "{}"'.format(menu_title, menu_text)
+        cmd = 'notify-send "{}" "{}"'.format(menu_title, menu_text)
         try:
             sp.run(cmd, shell=True, check=True)
         except sp.CalledProcessError as e:
@@ -527,13 +523,13 @@ def switch_menu(new_menu):
 
 
 # -----------------------------------------------------------------------------
-def run_error(error, command, exit=True):
+def run_error(error, command, do_exit=True):
     """
     """
     print("ERROR running the following comand:")
     print("\t{}".format(command))
     print("RETURN CODE: {}".format(error.returncode))
-    if exit:
+    if do_exit:
         sys.exit(1)
 
 
@@ -551,10 +547,9 @@ def read_config():
         print("ERROR: Couldn't locate config.ini")
         sys.exit(2)
 
-
     # tablet info
 
-    current_tablet = config.get('config', 'current_tablet').split("#",1)[0].strip('[]').strip()
+    current_tablet = config.get('config', 'current_tablet').split("#", 1)[0].strip('[]').strip()
 
     try:
         main.settings['model_name'] = config.get(current_tablet, 'model_name')
@@ -664,9 +659,7 @@ def read_config():
     except:
         main.settings['scrollbar_notifications'] = False
 
-
     # multi-monitor setup
-
     try:
         main.settings['enable_multi_monitor'] = config.getboolean('config', 'enable_multi_monitor')
     except:
@@ -709,7 +702,7 @@ def read_config():
     except:
         main.settings['enable_calibration'] = False
 
-    # miscellaneus
+    # miscellaneous
 
     main.settings['uclogic_bins'] = config.get('config', 'uclogic_bins')
     try:
@@ -724,7 +717,6 @@ def read_config():
         main.settings['start_menu'] = config.get('config', 'start_menu').strip('[]')
     except:
         main.settings['start_menu'] = ''
-
 
     for section in config.sections():
         if section.startswith('menu_'):
