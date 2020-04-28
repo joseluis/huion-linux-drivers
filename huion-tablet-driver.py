@@ -30,7 +30,7 @@ class main():
     def run():
         find_usb_device()
         read_config()
-        # prepare_driver()
+        prepare_driver()
         setup_driver()
         calibrate()
         multi_monitor()
@@ -601,7 +601,6 @@ def read_config():
     except:
         main.settings['screen'] = False
 
-
     # DEBUG mode
     try:
         main.settings['debug_mode'] = config.getboolean('config', 'debug_mode')
@@ -616,7 +615,6 @@ def read_config():
             main.settings['debug_mode'] = True
     except:
         main.settings['tablet_debug_only'] = False
-
 
     # features
 
