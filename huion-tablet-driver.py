@@ -424,7 +424,7 @@ def main_loop():
                     Y = (data[9] << 16) + (data[5] << 8) + data[4]
                 except:
                     try:
-                        Y = (data[9] << 16) + (data[5] << 8) + data[4]
+                        Y = (data[5] << 8) + data[4]
                     except:
                         Y = 0
                 try:
