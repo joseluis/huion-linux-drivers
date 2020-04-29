@@ -216,7 +216,7 @@ def setup_driver():
         try:
             sp.run(cmd, shell=True, check=True)
         except sp.CalledProcessError as e:
-            run_error(e, cmd)
+            run_error(e, cmd, False)
 
 
 # -----------------------------------------------------------------------------
@@ -494,7 +494,7 @@ def keypress(title, sequence):
     try:
         sp.run(cmd, shell=True, check=True)
     except sp.CalledProcessError as e:
-        run_error(e, cmd)
+        run_error(e, cmd, False)
 
 
 # -----------------------------------------------------------------------------
@@ -519,7 +519,7 @@ def switch_menu(new_menu):
         try:
             sp.run(cmd, shell=True, check=True)
         except sp.CalledProcessError as e:
-            run_error(e, cmd)
+            run_error(e, cmd, False)
 
 
 # -----------------------------------------------------------------------------
