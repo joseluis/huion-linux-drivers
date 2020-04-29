@@ -13,7 +13,6 @@
   - [Multi-Monitor](#multi-monitor-)
   - [Shortcuts](#shortcuts-)
 - [Help Welcomed](#help-welcomed-)
-  - [To do](#to-do-)
 
 ## Features [↑](#table-of-contents "Back to TOC")
 
@@ -166,10 +165,10 @@ b9 = key 6             # turn right (krita)
 
 ## Help Welcomed [↑](#table-of-contents "Back to TOC")
 
-Please take a look to the open issues to see if you can help with something. Thanks.
+I originally started this project for my own simple needs and my single Huion tablet.
+Now it has grown more than I imagined, and I don't have much time or energy to support all use-cases and fix all the issues.
 
-### To do [↑](#table-of-contents "Back to TOC")
+I'm very open to add additional mantainers, so tell me if you are interested.
+Or you can take a look to the open issues if you want to help with something.
 
-  - [ ] make tilt work [#33]
-  - [ ] use udev rules instead of sudo [#31]
-
+Thank you!
