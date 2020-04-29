@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
-
+#
+# Linux user-space drivers for Huion Graphic Tablets
+# https://github.com/joseluis/huion-linux-drivers
+#
+# updated: 20200429
+#
 import usb.core
 import usb.util
 import sys
@@ -11,6 +16,7 @@ import math
 import numexpr
 from configparser import ConfigParser, ExtendedInterpolation
 from time import gmtime, strftime, sleep
+from typing import Dict, Any
 
 MENU = {}
 
@@ -19,8 +25,8 @@ MENU = {}
 class main():
     """
     """
-    settings = {'pen_device_name':'Tablet Monitor Pen' # must be defined here
-                + strftime(" %H%M%S", gmtime())}       # for pressure to work
+    settings: Dict[str, Any] = {'pen_device_name': 'Tablet Monitor Pen'  # must be defined here
+                                + strftime(" %H%M%S", gmtime())}         # for pressure to work
     dev = None
     endpoint = None
     vpen = None
@@ -95,13 +101,14 @@ def prepare_driver():
         main.settings['uclogic_bins'])
     try:
         uc_str = sp.run(cmd, shell=True, check=True, stdout=sp.PIPE)
+
+        print("Done!")
+
+        if main.settings['debug_mode']:
+            print('-'*80+'\n' + uc_str.stdout.decode("utf-8") + '-' * 80)
+
     except sp.CalledProcessError as e:
         run_error(e, cmd)
-
-    print("Done!")
-
-    if main.settings['debug_mode']:
-        print('-'*80+'\n' + uc_str.stdout.decode("utf-8") + '-' * 80)
 
 
 # -----------------------------------------------------------------------------
@@ -306,8 +313,7 @@ def main_loop():
 
     SCROLL_VAL_PREV = 0
 
-    if main.settings['debug_mode']:
-        HOVER_PREV = False
+    HOVER_PREV = False  # DEBUG
 
     while not sleep(main.settings['refresh_rate_fps']):
         try:
@@ -452,7 +458,6 @@ def main_loop():
                 main.vpen.syn()
 
         except usb.core.USBError as e:
-            data = None
             if e.args == (19, 'No such device (it may have been disconnected)'):
                 print(e, file=sys.stderr)
                 sys.exit()
@@ -461,7 +466,7 @@ def main_loop():
 # -----------------------------------------------------------------------------
 def do_shortcut(title, sequence):
     """ Interprets whether the shortcut is a keypress or a menu link
-        and triggers the appropiate action in either case.
+       and triggers the appropriate action in either case.
     """
     # empty shortcut
     if sequence == "":
@@ -670,33 +675,33 @@ def read_config():
 
     try:
         main.settings['monitor_setup'] = config.get('config', 'current_monitor_setup')
-        current_monitor_setup =  main.settings['monitor_setup'].split("#",1)[0].strip('[]').strip()
+        current_monitor_setup = main.settings['monitor_setup'].split("#", 1)[0].strip('[]').strip()
         main.settings['total_screen_width'] = numexpr.evaluate(config.get(current_monitor_setup,
-            'total_screen_width').split("#",1)[0].strip())
+            'total_screen_width').split("#", 1)[0].strip())
         main.settings['total_screen_height'] = numexpr.evaluate(config.get(current_monitor_setup,
-            'total_screen_height').split("#",1)[0].strip())
+            'total_screen_height').split("#", 1)[0].strip())
         main.settings['tablet_offset_x'] = numexpr.evaluate(config.get(current_monitor_setup,
-            'tablet_offset_x').split("#",1)[0].strip())
+            'tablet_offset_x').split("#", 1)[0].strip())
         main.settings['tablet_offset_y'] = numexpr.evaluate(config.get(current_monitor_setup,
-            'tablet_offset_y').split("#",1)[0].strip())
+            'tablet_offset_y').split("#", 1)[0].strip())
 
         main.settings['xrandr_args'] = config.get(current_monitor_setup,
-            'xrandr_args').split("#",1)[0].strip()
+            'xrandr_args').split("#", 1)[0].strip()
     except:
-        current_monitor_setup = "none"
+        pass
 
     # tablet calibration
 
     try:
         main.settings['enable_calibration'] = config.getboolean('config', 'enable_calibration')
         main.settings['calibrate_min_x'] = numexpr.evaluate(config.get('config',
-            'calibrate_min_x').split("#",1)[0].strip())
+            'calibrate_min_x').split("#", 1)[0].strip())
         main.settings['calibrate_max_x'] = numexpr.evaluate(config.get('config',
-            'calibrate_max_x').split("#",1)[0].strip())
+            'calibrate_max_x').split("#", 1)[0].strip())
         main.settings['calibrate_min_y'] = numexpr.evaluate(config.get('config',
-            'calibrate_min_y').split("#",1)[0].strip())
+            'calibrate_min_y').split("#", 1)[0].strip())
         main.settings['calibrate_max_y'] = config.get('config',
-            'calibrate_max_y').split("#",1)[0].strip()
+            'calibrate_max_y').split("#", 1)[0].strip()
     except:
         main.settings['enable_calibration'] = False
 
@@ -708,7 +713,8 @@ def read_config():
     except:
         main.settings['enable_notifications'] = True
     try:
-        main.settings['refresh_rate_fps'] = 1 / numexpr.evaluate(config.get('config', 'refresh_rate_fps').split("#",1)[0].strip())
+        main.settings['refresh_rate_fps'] =\
+            1 / numexpr.evaluate(config.get('config', 'refresh_rate_fps').split("#", 1)[0].strip())
     except:
         main.settings['refresh_rate_fps'] = 1 / 100
     try:
