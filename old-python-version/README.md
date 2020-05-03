@@ -137,9 +137,9 @@ First, assign the menu you're going to use as the starting menu.
 ### Example with a Single Buttons Menu
 
 ```
-start_menu = [menu_simple_10b]
+start_menu = [menu_10b_simple]
 
-[menu_simple_10b]
+[menu_10b_simple]
 
 # upper buttons
 b0 = key Tab           # hide interface
