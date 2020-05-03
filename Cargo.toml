@@ -1,0 +1,13 @@
+[package]
+name = "huion-tablet-driver"
+version = "0.1.0"
+authors = ["joseLuís <joseluis@andamira.net>"]
+edition = "2018"
+
+[dependencies]
+evdev-rs = "0.4.0"
+rusb = "0.5.5"
+
+#toml_edit = "0.1.3"
+#clap = "2.33"
+#directories = "2.0.2"
