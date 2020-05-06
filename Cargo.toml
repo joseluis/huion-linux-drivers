@@ -9,6 +9,7 @@ evdev-rs = "0.4.0"
 globset = "0.4.5"
 sudo = "0.3"
 directories = "2.0.2"
+libc = "0.2"
 
 #toml_edit = "0.1.3"
 #clap = "2.33"

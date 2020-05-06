@@ -170,6 +170,7 @@ dependencies = [
  "directories",
  "evdev-rs",
  "globset",
+ "libc",
  "sudo",
 ]
 

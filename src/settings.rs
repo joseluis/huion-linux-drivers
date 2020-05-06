@@ -13,6 +13,9 @@ impl Settings {
             current_tablet: 0,
         }
     }
-    pub fn add(&mut self, tablet: Tablet) { self.tablets.push(tablet) }
+    pub fn add(&mut self, tablet: Tablet) {
+        // println!("\n---\n   {:#?}", &tablet); // DEBUG: print tablet
+        self.tablets.push(tablet);
+    }
 }
 
