@@ -1,5 +1,19 @@
 # User Space Linux Drivers for Huion Tablets
 
+---
+
+## PSA
+
+This project is currently not actively maintained and its future is uncertain. I started it a long time ago in order to fulfill a specific need I had at the time,  deciding to make it open and more general in case more people found it useful. But I didn't expect for it to become inmanageable as much for me.
+
+My circumstances have changed and I no longer have the motivation to keep working on this project. For one, my tablet works better now without it that with it, in recent versions of Linux. Many bugs have arised related with the compatilibility between different Python versions and different distributions, which is very frustrating (and this has also contributed to my avoiding of Python AMAP). Plus obscure compatibility problems with many tablets which I can't test nor desire to debug. It also doesn't work with Wayland, and it doesn't support mixing multiple resolutions in multi-monitor mode... The list goes on.
+
+If you believe you want to take care of gthe project and try to fix its multiple issues and keep maintaing it, please contact me and we can arrange some relay.
+
+Thank you, and I'm sorry for the broken expectatives
+
+---
+
 
 ## Table of Contents
 
